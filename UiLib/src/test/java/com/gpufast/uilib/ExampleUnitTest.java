@@ -1,4 +1,4 @@
-package com.gpufast.uilibrary;
+package com.gpufast.uilib;
 
 import org.junit.Test;
 

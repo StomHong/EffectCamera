@@ -1,1 +1,1 @@
-include ':app', ':effectlib','UiLibrary'
+include ':app', ':effectlib','UiLib'
