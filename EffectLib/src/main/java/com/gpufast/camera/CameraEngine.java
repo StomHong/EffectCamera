@@ -5,7 +5,7 @@ import android.view.SurfaceView;
 
 /**
  * @author Sivin 2018/10/26
- * Description:管理和操作Camera
+ * Description:摄像头控制引擎
  */
 public class CameraEngine {
 

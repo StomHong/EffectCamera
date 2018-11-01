@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * @author Sivin 2018/10/26
- * Description:废旧API实现的camera实现
+ * Description:使用旧版本camera类API实现实现
  */
 public class Camera19 implements ICamera {
 

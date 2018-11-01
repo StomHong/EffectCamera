@@ -1,4 +1,4 @@
-package com.gpufast.uilibrary.bottombar;
+package com.easyui.uilib.bottombar;
 
 import android.content.Context;
 import android.graphics.Paint;
@@ -10,7 +10,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-public class TabItem extends RelativeLayout {
+import com.easyui.uilib.utils.DensityUtils;
+
+class TabItem extends RelativeLayout {
 
     private Context mContext;
     private ImageView mIconView;
@@ -21,7 +23,7 @@ public class TabItem extends RelativeLayout {
     private int mTopMargin;
     private String mTitle;
     private Paint mTextPaint;
-    private int mTextSize; //sp
+    private int mTextSize;
     private Typeface mTypeFace;
 
     public TabItem(Context context) {
@@ -29,8 +31,8 @@ public class TabItem extends RelativeLayout {
     }
 
 
-    private void init(Context ctx) {
-        mContext = ctx;
+    private void init(Context context) {
+        mContext = context;
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         lp.weight = 3;
@@ -70,6 +72,4 @@ public class TabItem extends RelativeLayout {
             mIconView.setImageDrawable(mCompundIcon);
         }
     }
-
-
 }
