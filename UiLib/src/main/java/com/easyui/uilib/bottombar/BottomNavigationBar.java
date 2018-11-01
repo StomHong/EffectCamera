@@ -1,4 +1,4 @@
-package com.gpufast.uilibrary.bottombar;
+package com.easyui.uilib.bottombar;
 
 import android.content.Context;
 import android.support.annotation.Nullable;

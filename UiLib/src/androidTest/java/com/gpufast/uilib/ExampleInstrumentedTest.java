@@ -1,4 +1,4 @@
-package com.gpufast.uilibrary;
+package com.gpufast.uilib;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
