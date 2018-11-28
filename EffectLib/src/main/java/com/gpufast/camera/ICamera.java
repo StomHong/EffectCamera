@@ -7,6 +7,12 @@ package com.gpufast.camera;
 public interface ICamera {
 
     /**
+     * 设置相机参数
+     * @param params
+     */
+    void setCameraParams(CameraParams params);
+
+    /**
      * 打开前置摄像头
      * @return success return true otherwise return false
      */

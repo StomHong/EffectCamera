@@ -7,6 +7,10 @@ package com.gpufast.camera;
 public class Camera21 implements ICamera {
 
 
+    @Override
+    public void setCameraParams(CameraParams params) {
+
+    }
 
     @Override
     public boolean openFrontCamera() {

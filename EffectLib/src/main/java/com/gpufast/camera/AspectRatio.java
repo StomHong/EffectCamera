@@ -6,4 +6,16 @@ package com.gpufast.camera;
  */
 public class AspectRatio {
 
+    int m;
+    int n;
+
+    public AspectRatio(int m, int n) {
+        this.m = m;
+        this.n = n;
+    }
+
+    public float ofFloat(){
+        return m * 1.0f / n;
+    }
+
 }

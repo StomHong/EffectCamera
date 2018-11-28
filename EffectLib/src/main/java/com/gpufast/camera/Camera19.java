@@ -1,21 +1,26 @@
 package com.gpufast.camera;
 
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
  * @author Sivin 2018/10/26
- * Description:使用旧版本camera类API实现实现
+ * Description:使用旧版本camera类API实现实现,
+ * TODO：该类没有实现数据回调的接口，目前有待测试，是否数据回调是否与帧数据同时返回
  */
 public class Camera19 implements ICamera {
-
-    private static final int FRONT_FACE = 0;
-    private static final int BACK_FACE = 1;
-
     private Camera mCamera = null;
     private int mCameraFace;
     private boolean isPreviewing = false;
+    private CameraParams mParams;
+
+    @Override
+    public void setCameraParams(CameraParams params) {
+        mParams = params;
+    }
 
     @Override
     public boolean openFrontCamera() {
@@ -25,7 +30,7 @@ public class Camera19 implements ICamera {
             Camera.getCameraInfo(i, cameraInfo);
             if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 mCamera = Camera.open(i);
-                mCameraFace = FRONT_FACE;
+                mCameraFace = Camera.CameraInfo.CAMERA_FACING_FRONT;
                 return true;
             }
         }
@@ -40,7 +45,7 @@ public class Camera19 implements ICamera {
             Camera.getCameraInfo(i, cameraInfo);
             if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
                 mCamera = Camera.open(i);
-                mCameraFace = FRONT_FACE;
+                mCameraFace = Camera.CameraInfo.CAMERA_FACING_BACK;
                 return true;
             }
         }
@@ -51,11 +56,13 @@ public class Camera19 implements ICamera {
     public void switchCamera() {
         if (mCamera == null) return;
         stopCamera();
-        if (mCameraFace == BACK_FACE) {
+        if (mCameraFace == Camera.CameraInfo.CAMERA_FACING_BACK) {
             openFrontCamera();//打开当前选中的摄像头
         } else {
             openBackCamera();//打开当前选中的摄像头
         }
+        initCamera();
+        startPreview();
     }
 
 
@@ -65,37 +72,43 @@ public class Camera19 implements ICamera {
         if (isPreviewing) {
             stopPreview();
         }
-
-
+        mCamera.startPreview();
     }
 
     @Override
     public void stopPreview() {
-
-
+        if (mCamera != null) {
+            mCamera.stopPreview();
+        }
+        isPreviewing = false;
     }
 
 
-    private void initCamera(int surfaceWidth,int surfaceHeight,float ratio){
-
-        if(mCamera == null) return;
-
+    private void initCamera() {
+        if (mCamera == null) return;
         Camera.Parameters parameters = mCamera.getParameters();
-
-        //获取最佳预览尺寸
-        Camera.Size preViewSize = CameraUtils.chooseOptimalSize(parameters.getSupportedPreviewSizes(),
-                surfaceWidth,surfaceHeight,ratio);
-
+        //获取支持的预览尺寸
+        List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
+        Camera.Size preViewSize = CameraUtils.chooseOptimalSize(supportedPreviewSizes,
+                mParams.getPreViewWidth(), mParams.getPreViewHeight(), mParams.getRatio().ofFloat());
         parameters.setPreviewSize(preViewSize.width, preViewSize.height);
-
         // 设置摄像头为自动聚焦
         List<String> focusModes = parameters.getSupportedFocusModes();
-
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         }
+        parameters.setPictureFormat(ImageFormat.NV21);
+        if (mCameraFace == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            mCamera.setDisplayOrientation(270);
+        } else if (mCameraFace == Camera.CameraInfo.CAMERA_FACING_BACK){
+            mCamera.setDisplayOrientation(90);
+        }
+        try {
+            mCamera.setPreviewTexture(mParams.getPreTexture());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
 
     @Override
     public void stopCamera() {
@@ -106,8 +119,5 @@ public class Camera19 implements ICamera {
             mCamera.release();
             mCamera = null;
         }
-
     }
-
-
 }

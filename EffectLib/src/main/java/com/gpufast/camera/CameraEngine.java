@@ -19,7 +19,7 @@ public class CameraEngine {
 
     private CameraEngine() {
         if(Build.VERSION.SDK_INT >Build.VERSION_CODES.LOLLIPOP){
-
+            mICamera = new Camera19();
         }else{
             mICamera = new Camera19();
         }
@@ -38,6 +38,7 @@ public class CameraEngine {
 
     public void setLocalPreview(SurfaceView view){
         mLocalPreview = view;
+//        mLocalPreview.getHolder().addCallback(this);
     }
 
 
