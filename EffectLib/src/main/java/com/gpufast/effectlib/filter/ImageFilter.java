@@ -104,9 +104,6 @@ public class ImageFilter {
 
     public void onSizeChanged(int width ,int height){
 
-
-
-
     }
 
 

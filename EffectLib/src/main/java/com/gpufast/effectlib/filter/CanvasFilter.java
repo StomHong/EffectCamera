@@ -14,8 +14,10 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+/**
+ * 实现Android水印贴纸，为用户提供Android标准的Canvas API
+ */
 public class CanvasFilter {
-
 
     private static final String VERTEX_SHADER = "attribute vec4 vPosition;\n" +
             "attribute vec4 vTexCoordinate;\n" +

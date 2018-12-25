@@ -9,7 +9,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
+/**
+ * @author Sivin 2018/12/25
+ * Description:将Android的OESTextureId转换成OpenGL标准的RGBA的textureId
+ */
 public class CameraInputFilter {
 
     private static final String VERTEX_SHADER = "attribute vec4 vPosition;\n" +
