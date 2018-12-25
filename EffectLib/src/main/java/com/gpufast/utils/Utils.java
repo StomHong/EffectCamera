@@ -7,7 +7,6 @@ import android.app.Application;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.content.FileProvider;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -300,19 +299,6 @@ public final class Utils {
         }
     }
 
-
-    public static final class FileProvider4UtilCode extends FileProvider {
-
-        @Override
-        public boolean onCreate() {
-            Utils.init(getContext());
-            return true;
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // interface
-    ///////////////////////////////////////////////////////////////////////////
 
     public interface OnAppStatusChangedListener {
         void onForeground();

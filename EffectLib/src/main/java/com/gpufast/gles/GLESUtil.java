@@ -28,7 +28,7 @@ import java.nio.FloatBuffer;
 /**
  * Some OpenGL utility functions.
  */
-public class GlUtil {
+public class GLESUtil {
     public static final String TAG = "EffectLib";
 
     /** Identity matrix for general use.  Don't modify or life will get weird. */
@@ -42,7 +42,7 @@ public class GlUtil {
     private static final int SIZEOF_FLOAT = 4;
 
 
-    private GlUtil() {}     // do not instantiate
+    private GLESUtil() {}     // do not instantiate
 
     /**
      * Creates a new program from the supplied vertex and fragment shaders.
@@ -139,7 +139,7 @@ public class GlUtil {
 
         GLES20.glGenTextures(1, textureHandles, 0);
         textureHandle = textureHandles[0];
-        GlUtil.checkGlError("glGenTextures");
+        GLESUtil.checkGlError("glGenTextures");
 
         // Bind the texture handle to the 2D texture target.
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle);
@@ -150,12 +150,12 @@ public class GlUtil {
                 GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
                 GLES20.GL_LINEAR);
-        GlUtil.checkGlError("loadImageTexture");
+        GLESUtil.checkGlError("loadImageTexture");
 
         // Load the data from the buffer into the texture handle.
         GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, /*level*/ 0, format,
                 width, height, /*border*/ 0, format, GLES20.GL_UNSIGNED_BYTE, data);
-        GlUtil.checkGlError("loadImageTexture");
+        GLESUtil.checkGlError("loadImageTexture");
 
         return textureHandle;
     }
