@@ -65,9 +65,6 @@ public final class EglCore {
         this(null, 0);
     }
 
-    public EGLContext getEGLContext() {
-        return mEGLContext;
-    }
 
     /**
      * Prepares EGL display and context.

@@ -12,7 +12,7 @@ import com.gpufast.effect.filter.ImageFilter;
 import com.gpufast.effect.filter.OesToRgbFilter;
 import com.gpufast.utils.ELog;
 
-public class Render extends BaseRenderer implements SurfaceTexture.OnFrameAvailableListener {
+public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = Render.class.getSimpleName();
 
     private int srcTexWidth = 720;

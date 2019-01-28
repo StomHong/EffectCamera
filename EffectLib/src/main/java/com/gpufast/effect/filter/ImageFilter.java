@@ -1,4 +1,4 @@
-package com.gpufast.effectlib.filter;
+package com.gpufast.effect.filter;
 
 
 import android.opengl.GLES20;
@@ -195,7 +195,7 @@ public class ImageFilter {
     }
 
 
-    public void destory() {
+    public void destroy() {
         if (mProgram != 0) {
             GLES20.glDeleteProgram(mProgram);
         }

@@ -4,7 +4,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
-import com.gpufast.gles.GlUtil;
+import com.gpufast.gles.GLESUtil;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -120,7 +120,7 @@ public class CorpFilter {
      */
     public void init() {
 
-        mProgram =GlUtil.createProgram(VERTEX_SHADER,FRAGMENT_SHADER);
+        mProgram = GLESUtil.createProgram(VERTEX_SHADER,FRAGMENT_SHADER);
         GLES20.glUseProgram(mProgram);
 
         positionLoc = GLES20.glGetAttribLocation(mProgram, "vPosition");
@@ -232,14 +232,14 @@ public class CorpFilter {
      */
     private void prepareFramebuffer(int width, int height) {
 
-        GlUtil.checkGlError("prepareFramebuffer start");
+        GLESUtil.checkGlError("prepareFramebuffer start");
         int[] values = new int[1];
         // 创建颜色缓冲区
         GLES20.glGenTextures(1, values, 0);
-        GlUtil.checkGlError("glGenTextures");
+        GLESUtil.checkGlError("glGenTextures");
         mFrameBufferTextureId = values[0];   // expected > 0
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mFrameBufferTextureId);
-        GlUtil.checkGlError("glBindTexture " + mFrameBufferTextureId);
+        GLESUtil.checkGlError("glBindTexture " + mFrameBufferTextureId);
         // 设置texture存储
         GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0,
                 GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
@@ -253,20 +253,20 @@ public class CorpFilter {
                 GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
                 GLES20.GL_CLAMP_TO_EDGE);
-        GlUtil.checkGlError("glTexParameter");
+        GLESUtil.checkGlError("glTexParameter");
 
         // 创建帧缓冲区
         GLES20.glGenFramebuffers(1, values, 0);
-        GlUtil.checkGlError("glGenFramebuffers");
+        GLESUtil.checkGlError("glGenFramebuffers");
         mFramebuffer = values[0];
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFramebuffer);
-        GlUtil.checkGlError("glBindFramebuffer " + mFramebuffer);
+        GLESUtil.checkGlError("glBindFramebuffer " + mFramebuffer);
 
 
         //将颜色缓冲区绑定到帧缓冲区中
         GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
                 GLES20.GL_TEXTURE_2D, mFrameBufferTextureId, 0);
-        GlUtil.checkGlError("glFramebufferTexture2D");
+        GLESUtil.checkGlError("glFramebufferTexture2D");
 
         int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
         if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
@@ -275,7 +275,7 @@ public class CorpFilter {
 
         //切换回默认的缓冲区
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-        GlUtil.checkGlError("prepareFramebuffer done");
+        GLESUtil.checkGlError("prepareFramebuffer done");
     }
 
 

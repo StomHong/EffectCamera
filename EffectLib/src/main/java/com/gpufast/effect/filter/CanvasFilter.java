@@ -1,4 +1,4 @@
-package com.gpufast.effectlib.filter;
+package com.gpufast.effect.filter;
 
 
 import android.graphics.Bitmap;
