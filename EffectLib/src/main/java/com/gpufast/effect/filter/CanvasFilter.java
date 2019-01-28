@@ -1,4 +1,5 @@
-package com.gpufast.effect.filter;
+package com.gpufast.effectlib.filter;
+
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -6,13 +7,16 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
 
-import com.gpufast.gles.GlUtil;
+import com.gpufast.gles.GLESUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+/**
+ * 实现Android水印贴纸，为用户提供Android标准的Canvas API
+ */
 public class CanvasFilter {
 
     private static final String VERTEX_SHADER = "attribute vec4 vPosition;\n" +
@@ -67,7 +71,6 @@ public class CanvasFilter {
     private int mHeight;
 
 
-
     private Bitmap bitmapBoard;
 
     private Canvas canvas;
@@ -112,13 +115,15 @@ public class CanvasFilter {
      */
     public void init() {
 
-        mProgram = GlUtil.createProgram(VERTEX_SHADER,FRAGMENT_SHADER);
+        mProgram = GLESUtil.createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
         GLES20.glUseProgram(mProgram);
 
         positionLoc = GLES20.glGetAttribLocation(mProgram, "vPosition");
         textureCoordinateLoc = GLES20.glGetAttribLocation(mProgram, "vTexCoordinate");
         textureHandle = GLES20.glGetUniformLocation(mProgram, "texture");
-        textureId =  createTextureId();
+        textureId = createTextureId();
+
+        GLES20.glUseProgram(0);
 
     }
 
@@ -141,11 +146,11 @@ public class CanvasFilter {
         return textures[0];
     }
 
-    public void onSizeChanged(int width ,int height){
+    public void onSizeChanged(int width, int height) {
         if (mWidth != width || mHeight != height) {
-            mWidth= width;
+            mWidth = width;
             mHeight = height;
-            if(bitmapBoard != null){
+            if (bitmapBoard != null) {
                 bitmapBoard.recycle();
                 bitmapBoard = null;
             }
@@ -155,7 +160,7 @@ public class CanvasFilter {
     }
 
 
-    private void updateImage(){
+    private void updateImage() {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId);
         if (bitmapBoard != null) {
             GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmapBoard, 0);
@@ -166,6 +171,7 @@ public class CanvasFilter {
 
     /**
      * 绘制纹理
+     *
      * @return 返回新的纹理id
      */
     public int drawTexture() {
@@ -192,7 +198,7 @@ public class CanvasFilter {
     }
 
     private void updateTexture() {
-        if(mCanvasPainter != null){
+        if (mCanvasPainter != null) {
             mCanvasPainter.draw(canvas);
         }
         updateImage();
@@ -204,12 +210,11 @@ public class CanvasFilter {
             GLES20.glDeleteProgram(mProgram);
         }
         mProgram = 0;
-        if(bitmapBoard != null){
+        if (bitmapBoard != null) {
             bitmapBoard.recycle();
             bitmapBoard = null;
         }
     }
-
 
 
 }
