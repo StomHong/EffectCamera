@@ -5,6 +5,7 @@ import android.view.SurfaceView;
 import com.gpufast.camera.CameraEngine;
 import com.gpufast.effectcamera.recorder.contract.RecorderContract;
 import com.gpufast.recoder.EffectRecorderEngine;
+import com.gpufast.recoder.RecorderEngine;
 import com.gpufast.recoder.RecorderParams;
 import com.gpufast.utils.ELog;
 
@@ -13,7 +14,7 @@ public class RecorderPresenter implements RecorderContract.Presenter {
 
     private RecorderContract.View mView;
     private CameraEngine mCameraEngine;
-    private EffectRecorderEngine mRecoderEngine;
+    private EffectRecorderEngine mRecorderEngine;
 
 
     public void attachView(RecorderContract.View view){
@@ -43,16 +44,16 @@ public class RecorderPresenter implements RecorderContract.Presenter {
 
     @Override
     public void startRecorder() {
-        if(mRecoderEngine == null){
-            mRecoderEngine = EffectRecorderEngine.getInstance();
+        if(mRecorderEngine == null){
+            mRecorderEngine = EffectRecorderEngine.getInstance();
         }
-        mCameraEngine.setRenderFrameCallback(mRecoderEngine);
-        mRecoderEngine.startRecorder();
+        mCameraEngine.setRenderFrameCallback(mRecorderEngine);
+        mRecorderEngine.startRecorder();
     }
 
     @Override
     public void stopRecorder() {
-        mRecoderEngine.startRecorder();
+        mRecorderEngine.stopRecorder();
         mCameraEngine.setRenderFrameCallback(null);
     }
 

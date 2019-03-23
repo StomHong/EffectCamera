@@ -1,5 +1,8 @@
 package com.gpufast.effectcamera.recorder.ui;
 
+import android.graphics.ImageFormat;
+import android.hardware.Camera;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -24,5 +27,6 @@ public class RecorderActivity extends AppCompatActivity {
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.id_container,new RecorderFragment());
         ft.commit();
+
     }
 }

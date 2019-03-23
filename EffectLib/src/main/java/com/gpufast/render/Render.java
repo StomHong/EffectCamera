@@ -8,6 +8,7 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.view.Surface;
 
+import com.gpufast.effect.filter.CropScaleFilter;
 import com.gpufast.effect.filter.ImageFilter;
 import com.gpufast.effect.filter.OesToRgbFilter;
 import com.gpufast.utils.ELog;
@@ -28,8 +29,12 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
 
     //预处理滤镜
     private OesToRgbFilter mOesToRgbFilter;
+
+    //缩放裁剪滤镜
+    private CropScaleFilter mScaleFilter;
+
     //最终显示的滤镜
-    private ImageFilter imageFilter;
+    private ImageFilter mImageFilter;
 
     private FrameCallback mCallback = null;
 
@@ -45,7 +50,10 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
         textures = new int[1];
 
         mOesToRgbFilter = new OesToRgbFilter();
-        imageFilter = new ImageFilter();
+        mScaleFilter = new CropScaleFilter();
+        mImageFilter = new ImageFilter();
+
+
 
         swTexture = new SurfaceTexture(-1);
         swTexture.detachFromGLContext();
@@ -71,13 +79,18 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 setupTexture();
                 swTexture.attachToGLContext(textures[0]);
                 mOesToRgbFilter.init();
-                imageFilter.init();
+                mScaleFilter.init();
+                mImageFilter.init();
             }
 
             @Override
             public void onSizeChanged(int width, int height) {
                 mWidth = width;
                 mHeight = height;
+
+                mScaleFilter.setCropSize(width,height);
+                mScaleFilter.setSrcSize(srcTexWidth,srcTexHeight);
+
                 mOesToRgbFilter.onSizeChanged(srcTexWidth, srcTexHeight);
             }
 
@@ -87,20 +100,24 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 swTexture.getTransformMatrix(textureMatrix);
                 int srcRgbId = mOesToRgbFilter.drawTexture(textures[0], textureMatrix);
 
+                int aniTextureId = mScaleFilter.drawTexture(srcRgbId);
+
+
                 int newTexId = 0;
                 if(mCallback != null){
-                    newTexId = mCallback.onFrameCallback(getEGLContext(),srcRgbId,srcTexWidth,srcTexHeight);
+                    newTexId = mCallback.onFrameCallback(getEGLContext(),aniTextureId,srcTexWidth,srcTexHeight);
                 }
 
                 if(newTexId == 0){
-                    newTexId = srcRgbId;
+                    newTexId = aniTextureId;
                 }
 
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
                 GLES20.glViewport(0,0,mWidth,mHeight);
                 GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-                imageFilter.drawTexture(newTexId);
+
+                mImageFilter.drawTexture(newTexId);
             }
 
             @Override
@@ -112,7 +129,8 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 swTexture.release();
                 swTexture.setOnFrameAvailableListener(null);
                 mOesToRgbFilter.destroy();
-                imageFilter.destroy();
+                mScaleFilter.destroy();
+                mImageFilter.destroy();
             }
         };
     }
