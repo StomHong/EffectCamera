@@ -11,6 +11,8 @@ import android.view.Surface;
 import com.gpufast.effect.filter.CropScaleFilter;
 import com.gpufast.effect.filter.ImageFilter;
 import com.gpufast.effect.filter.OesToRgbFilter;
+import com.gpufast.recoder.IRecorder;
+import com.gpufast.recoder.RecorderFactory;
 import com.gpufast.utils.ELog;
 
 public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailableListener {
@@ -38,6 +40,10 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
 
     private FrameCallback mCallback = null;
 
+    private IRecorder mRecorder;
+
+    private PresentationTime mPTime;
+
     public Render(Surface surface) {
         super(surface);
         //不要做任何操作，请在onRenderInit里做子类相关的初始化
@@ -54,12 +60,14 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
         mImageFilter = new ImageFilter();
 
 
-
         swTexture = new SurfaceTexture(-1);
         swTexture.detachFromGLContext();
         swTexture.setOnFrameAvailableListener(this);
-    }
 
+
+        mRecorder = RecorderFactory.getRecorderInstance();
+        mPTime = new PresentationTime(mRecorder.getFps());
+    }
 
 
     private void setupTexture() {
@@ -81,16 +89,15 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 mOesToRgbFilter.init();
                 mScaleFilter.init();
                 mImageFilter.init();
+                mRecorder.setShareContext(getEGLContext());
             }
 
             @Override
             public void onSizeChanged(int width, int height) {
                 mWidth = width;
                 mHeight = height;
-
-                mScaleFilter.setCropSize(width,height);
-                mScaleFilter.setSrcSize(srcTexWidth,srcTexHeight);
-
+                mScaleFilter.setCropSize(width, height);
+                mScaleFilter.setSrcSize(srcTexWidth, srcTexHeight);
                 mOesToRgbFilter.onSizeChanged(srcTexWidth, srcTexHeight);
             }
 
@@ -98,31 +105,33 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
             public void onDraw() {
                 swTexture.updateTexImage();
                 swTexture.getTransformMatrix(textureMatrix);
+                mPTime.record();
+
                 int srcRgbId = mOesToRgbFilter.drawTexture(textures[0], textureMatrix);
 
-                int aniTextureId = mScaleFilter.drawTexture(srcRgbId);
-
-
                 int newTexId = 0;
-                if(mCallback != null){
-                    newTexId = mCallback.onFrameCallback(getEGLContext(),aniTextureId,srcTexWidth,srcTexHeight);
+                if (mCallback != null) {
+                    newTexId = mCallback.onFrameCallback(getEGLContext(), srcRgbId, srcTexWidth, srcTexHeight);
+                }
+                if (newTexId == 0) {
+                    newTexId = srcRgbId;
                 }
 
-                if(newTexId == 0){
-                    newTexId = aniTextureId;
-                }
+                mRecorder.sendVideoFrame(newTexId,srcTexWidth,srcTexHeight,mPTime.presentationTimeUs);
+
+                //屏幕适配
+                int aniTextureId = mScaleFilter.drawTexture(newTexId);
 
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-                GLES20.glViewport(0,0,mWidth,mHeight);
+                GLES20.glViewport(0, 0, mWidth, mHeight);
                 GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-
-                mImageFilter.drawTexture(newTexId);
+                mImageFilter.drawTexture(aniTextureId);
             }
 
             @Override
             public void onDestroy() {
-                if(mCallback != null){
+                if (mCallback != null) {
                     mCallback.onEglContextDestroy();
                 }
                 GLES20.glDeleteTextures(1, textures, 0);

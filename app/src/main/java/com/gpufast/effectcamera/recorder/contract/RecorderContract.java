@@ -2,7 +2,6 @@ package com.gpufast.effectcamera.recorder.contract;
 
 import android.view.SurfaceView;
 
-import com.gpufast.recoder.RecorderEngine;
 import com.gpufast.recoder.RecorderParams;
 
 public interface RecorderContract {

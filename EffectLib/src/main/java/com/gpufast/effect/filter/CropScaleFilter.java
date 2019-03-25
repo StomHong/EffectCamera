@@ -183,6 +183,7 @@ public class CropScaleFilter {
                 //1282/1080  --1.18;
                 scaleX = animWith /mWidth;
             }
+
             Matrix.scaleM(mScaleMatrix,0,scaleX,scaleY,1.0f);
         }
     }

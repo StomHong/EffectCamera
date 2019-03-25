@@ -239,9 +239,6 @@ class HardwareVideoEncoder implements VideoEncoder {
             return VideoCodecStatus.UNINITIALIZED;
         }
 
-        final VideoFrame.Buffer videoFrameBuffer = videoFrame.getBuffer();
-        final boolean isTextureBuffer = videoFrameBuffer instanceof VideoFrame.TextureBuffer;
-
         //如果输入分辨率发生变化，则使用新分辨率重新启动编解码器
         final int frameWidth = videoFrame.getBuffer().getWidth();
         final int frameHeight = videoFrame.getBuffer().getHeight();
