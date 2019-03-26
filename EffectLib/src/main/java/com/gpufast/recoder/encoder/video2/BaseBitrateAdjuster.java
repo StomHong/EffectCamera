@@ -12,7 +12,7 @@ class BaseBitrateAdjuster implements BitrateAdjuster {
 
     @Override
     public void reportEncodedFrame(int size) {
-        // No op.
+
     }
 
     @Override

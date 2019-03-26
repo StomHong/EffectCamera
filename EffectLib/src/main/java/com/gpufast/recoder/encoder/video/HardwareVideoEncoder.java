@@ -17,8 +17,8 @@
 //import android.os.Bundle;
 //import android.view.Surface;
 //
-//import com.gpufast.gles.EglBase;
-//import com.gpufast.gles.EglBase14;
+//import com.gpufast.gles.EglCore;
+//import com.gpufast.gles.EglCore14;
 //import com.gpufast.recoder.encoder.video2.EncodedImage;
 //import com.gpufast.recoder.encoder.video2.GlRectDrawer;
 //import com.gpufast.recoder.encoder.video2.VideoCodecInfo;
@@ -75,7 +75,7 @@
 //    private final int keyFrameIntervalSec; // Base interval for generating key frames.
 //    // Qualcomm video encoders.
 //    private final BitrateAdjuster bitrateAdjuster;
-//    private final EglBase14.Context sharedContext;
+//    private final EglCore14.Context sharedContext;
 //
 //    // Drawer used to draw input textures onto the codec's input surface.
 //    private final GlRectDrawer textureDrawer = new GlRectDrawer();
@@ -101,7 +101,7 @@
 //    // EGL base wrapping the shared texture context.  Holds hooks to both the shared context and the
 //    // input surface.  Making this base current allows textures from the context to be drawn onto the
 //    // surface.
-//    private EglBase textureEglBase;
+//    private EglCore textureEglBase;
 //    // Input surface for he codec.  The encoder will draw input textures onto this surface.
 //    private Surface textureInputSurface;
 //
@@ -135,7 +135,7 @@
 //    public HardwareVideoEncoder(MediaCodecWrapperFactory mediaCodecWrapperFactory, String codecName,
 //                                VideoCodecType codecType, Integer surfaceColorFormat,
 //                                Map<String, String> params, int keyFrameIntervalSec,
-//                                BitrateAdjuster bitrateAdjuster, EglBase14.Context sharedContext) {
+//                                BitrateAdjuster bitrateAdjuster, EglCore14.Context sharedContext) {
 //        this.mediaCodecWrapperFactory = mediaCodecWrapperFactory;
 //        this.codecName = codecName;
 //        this.codecType = codecType;
@@ -206,7 +206,7 @@
 //            codec.configure(
 //                    format, null /* surface */, null /* crypto */, MediaCodec.CONFIGURE_FLAG_ENCODE);
 //
-//            textureEglBase = new EglBase14(sharedContext, EglBase.CONFIG_RECORDABLE);
+//            textureEglBase = new EglCore14(sharedContext, EglCore.CONFIG_RECORDABLE);
 //            textureInputSurface = codec.createInputSurface();
 //            textureEglBase.createSurface(textureInputSurface);
 //            textureEglBase.makeCurrent();

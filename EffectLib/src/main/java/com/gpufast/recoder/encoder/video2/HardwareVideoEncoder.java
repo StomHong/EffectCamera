@@ -13,12 +13,12 @@ package com.gpufast.recoder.encoder.video2;
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.opengl.EGLContext;
 import android.opengl.GLES20;
 import android.os.Bundle;
 import android.view.Surface;
 
-import com.gpufast.gles.EglBase;
-import com.gpufast.gles.EglBase14;
+import com.gpufast.gles.EglCore;
 import com.gpufast.recoder.encoder.video.VideoCodecStatus;
 import com.gpufast.recoder.encoder.video.VideoFrame;
 import com.gpufast.recoder.encoder.video.VideoFrameDrawer;
@@ -77,7 +77,7 @@ class HardwareVideoEncoder implements VideoEncoder {
 
 
     private final BitrateAdjuster bitrateAdjuster;
-    private final EglBase14.Context sharedContext;
+    private final EGLContext sharedContext;
 
     // Drawer used to draw input textures onto the codec's input surface.
     private final GlRectDrawer textureDrawer = new GlRectDrawer();
@@ -101,7 +101,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     // EGL base wrapping the shared texture context.  Holds hooks to both the shared context and the
     // input surface.  Making this base current allows textures from the context to be drawn onto the
     // surface.
-    private EglBase textureEglBase;
+    private EglCore mEglCore;
     // Input surface for he codec.  The encoder will draw input textures onto this surface.
     private Surface textureInputSurface;
 
@@ -134,7 +134,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     public HardwareVideoEncoder(MediaCodecWrapperFactory mediaCodecWrapperFactory, String codecName,
                                 VideoCodecType codecType, Integer surfaceColorFormat,
                                 Map<String, String> params, int keyFrameIntervalSec,
-                                BitrateAdjuster bitrateAdjuster, EglBase14.Context sharedContext) {
+                                BitrateAdjuster bitrateAdjuster, EGLContext sharedContext) {
         this.mediaCodecWrapperFactory = mediaCodecWrapperFactory;
         this.codecName = codecName;
         this.codecType = codecType;
@@ -213,10 +213,10 @@ class HardwareVideoEncoder implements VideoEncoder {
             codec.configure(
                     format, null /* surface */, null /* crypto */, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
-            textureEglBase = new EglBase14(sharedContext, EglBase.CONFIG_RECORDABLE);
+            mEglCore = EglCore.create(sharedContext, EglCore.CONFIG_RECORDABLE);
             textureInputSurface = codec.createInputSurface();
-            textureEglBase.createSurface(textureInputSurface);
-            textureEglBase.makeCurrent();
+            mEglCore.createSurface(textureInputSurface);
+            mEglCore.makeCurrent();
 
             codec.start();
         } catch (IllegalStateException e) {
@@ -281,11 +281,13 @@ class HardwareVideoEncoder implements VideoEncoder {
     private VideoCodecStatus encodeTextureBuffer(VideoFrame videoFrame) {
         encodeThreadChecker.checkIsOnValidThread();
         try {
+
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
             // 没有必要去释放这个frame，因为它没有buffer数据.
             VideoFrame derotatedFrame = new VideoFrame(videoFrame.getBuffer(), 0, videoFrame.getTimestampNs());
             videoFrameDrawer.drawFrame(derotatedFrame, textureDrawer, null);
-            textureEglBase.swapBuffers(videoFrame.getTimestampNs());
+            mEglCore.swapBuffers(videoFrame.getTimestampNs());
+
         } catch (RuntimeException e) {
             ELog.e(TAG, "encodeTexture failed", e);
             return VideoCodecStatus.ERROR;
@@ -449,9 +451,9 @@ class HardwareVideoEncoder implements VideoEncoder {
         textureDrawer.release();
         videoFrameDrawer.release();
 
-        if (textureEglBase != null) {
-            textureEglBase.release();
-            textureEglBase = null;
+        if (mEglCore != null) {
+            mEglCore.release();
+            mEglCore = null;
         }
         if (textureInputSurface != null) {
             textureInputSurface.release();

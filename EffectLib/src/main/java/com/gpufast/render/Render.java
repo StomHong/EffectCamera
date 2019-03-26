@@ -6,6 +6,7 @@ import android.opengl.EGLContext;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 import android.view.Surface;
 
 import com.gpufast.effect.filter.CropScaleFilter;
@@ -94,15 +95,13 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 mOesToRgbFilter.onSizeChanged(srcTexWidth, srcTexHeight);
             }
 
+
             @Override
             public void onDraw() {
                 swTexture.updateTexImage();
                 swTexture.getTransformMatrix(textureMatrix);
                 int srcRgbId = mOesToRgbFilter.drawTexture(textures[0], textureMatrix);
-
                 int aniTextureId = mScaleFilter.drawTexture(srcRgbId);
-
-
                 int newTexId = 0;
                 if(mCallback != null){
                     newTexId = mCallback.onFrameCallback(getEGLContext(),aniTextureId,srcTexWidth,srcTexHeight);

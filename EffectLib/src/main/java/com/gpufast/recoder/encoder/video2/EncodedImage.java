@@ -14,12 +14,15 @@ public class EncodedImage {
         VideoFrameKey(3),
         VideoFrameDelta(4);
         private final int nativeIndex;
-        private FrameType(int nativeIndex) {
+
+        FrameType(int nativeIndex) {
             this.nativeIndex = nativeIndex;
         }
+
         public int getNative() {
             return nativeIndex;
         }
+
         static FrameType fromNativeIndex(int nativeIndex) {
             for (FrameType type : FrameType.values()) {
                 if (type.getNative() == nativeIndex) {
@@ -31,14 +34,29 @@ public class EncodedImage {
     }
 
     public final ByteBuffer buffer;
+
+    /**
+     * 编码视频的宽度
+     */
     public final int encodedWidth;
+
+    /**
+     * 编码视频的高度
+     */
     public final int encodedHeight;
 
     public final long captureTimeNs;
+
     public final FrameType frameType;
 
+    /**
+     * 视频旋转角度
+     */
     public final int rotation;
 
+    /**
+     * 是否是一个完整的帧
+     */
     public final boolean completeFrame;
 
     public final Integer qp;
@@ -69,7 +87,8 @@ public class EncodedImage {
         private boolean completeFrame;
         private Integer qp;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder setBuffer(ByteBuffer buffer) {
             this.buffer = buffer;

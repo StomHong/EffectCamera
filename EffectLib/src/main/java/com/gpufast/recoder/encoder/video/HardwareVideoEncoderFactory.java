@@ -5,7 +5,7 @@
 //import android.media.MediaCodecList;
 //import android.os.Build;
 //
-//import com.gpufast.gles.EglBase14;
+//import com.gpufast.gles.EglCore14;
 //import com.gpufast.recoder.encoder.VideoEncoderFactory;
 //import com.gpufast.recoder.encoder.video2.MediaCodecUtils;
 //import com.gpufast.recoder.encoder.video2.VideoCodecInfo;
@@ -28,9 +28,9 @@
 //    private static final List<String> H264_HW_EXCEPTION_MODELS =
 //            Arrays.asList("SAMSUNG-SGH-I337", "Nexus 7", "Nexus 4");
 //
-//    private final EglBase14.Context sharedContext;
+//    private final EglCore14.Context sharedContext;
 //
-//    public HardwareVideoEncoderFactory(EglBase14.Context sharedContext) {
+//    public HardwareVideoEncoderFactory(EglCore14.Context sharedContext) {
 //
 //    }
 //

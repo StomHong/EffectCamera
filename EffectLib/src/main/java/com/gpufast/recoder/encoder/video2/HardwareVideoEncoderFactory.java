@@ -2,9 +2,9 @@ package com.gpufast.recoder.encoder.video2;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
+import android.opengl.EGLContext;
 import android.os.Build;
 
-import com.gpufast.gles.EglBase14;
 import com.gpufast.recoder.encoder.VideoEncoderFactory;
 import com.gpufast.utils.ELog;
 
@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 import static com.gpufast.recoder.encoder.video2.MediaCodecUtils.EXYNOS_PREFIX;
 import static com.gpufast.recoder.encoder.video2.MediaCodecUtils.QCOM_PREFIX;
 
 public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
     private static final String TAG = "HardwareVideoEncoderFac";
-    private EglBase14.Context sharedContext;
+    private EGLContext sharedContext;
 
     @Override
     public VideoEncoder createEncoder(VideoCodecInfo inputCodecInfo) {
@@ -59,7 +60,6 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         }
         throw new IllegalArgumentException("Unsupported VideoCodecType " + type);
     }
-
 
 
     private MediaCodecInfo findCodecForType(VideoCodecType type) {

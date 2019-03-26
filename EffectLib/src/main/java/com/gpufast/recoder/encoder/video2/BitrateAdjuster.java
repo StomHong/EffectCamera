@@ -8,8 +8,7 @@ interface BitrateAdjuster {
   void setTargets(int targetBitrateBps, int targetFps);
 
   /**
-   * Reports that a frame of the given size has been encoded.  Returns true if the bitrate should
-   * be adjusted.
+   * 报告指定大小的frame已经编码完成，如果码率需要调整，则返回true
    */
   void reportEncodedFrame(int size);
 

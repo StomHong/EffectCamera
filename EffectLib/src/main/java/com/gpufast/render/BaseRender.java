@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.Surface;
 
 import com.gpufast.gles.EglCore;
-import com.gpufast.gles.WindowSurface;
 
 import java.lang.ref.WeakReference;
 
@@ -48,7 +47,7 @@ public abstract class BaseRender {
     }
 
     public void onFrameAvailable() {
-        if (mRenderThread.mReady){
+        if (mRenderThread.mReady) {
             mRenderThread.getHandler().sendFrameAvailable();
         }
 
@@ -69,14 +68,13 @@ public abstract class BaseRender {
         private boolean mReady = false;
         private RenderHandler mHandler;
         private EglCore mEglCore;
-        private WindowSurface mWindowSurface;
 
         public boolean isReady() {
             return mReady;
         }
 
         private EGLContext getEglContext() {
-            return mEglCore.getEGLContext();
+            return mEglCore.getEglContext();
         }
 
         public RenderHandler getHandler() {
@@ -93,9 +91,10 @@ public abstract class BaseRender {
         public void run() {
             Looper.prepare();
             mHandler = new RenderHandler(this);
-            mEglCore = new EglCore();
-            mWindowSurface = new WindowSurface(mEglCore, surface, true);
-            mWindowSurface.makeCurrent();
+            mEglCore = EglCore.create();
+            mEglCore.createSurface(surface);
+            mEglCore.makeCurrent();
+
             callback.onInit();
 
             synchronized (mStartLock) {
@@ -110,12 +109,7 @@ public abstract class BaseRender {
         }
 
         private void releaseEGL() {
-            mEglCore.makeNothingCurrent();
             mEglCore.release();
-            if (mWindowSurface != null) {
-                mWindowSurface.release();
-                mWindowSurface = null;
-            }
         }
 
         /**
@@ -139,7 +133,7 @@ public abstract class BaseRender {
 
         private void onFrameAvailable() {
             callback.onDraw();
-            mWindowSurface.swapBuffers();
+            mEglCore.swapBuffers();
         }
 
 
