@@ -31,9 +31,9 @@ public interface VideoEncoder {
     }
 
     //初始化编码器
-    com.gpufast.recoder.encoder.video.VideoCodecStatus initEncode(VideoSettings settings, Callback encodeCallback);
+    VideoCodecStatus initEncode(VideoSettings settings, Callback encodeCallback);
 
-    com.gpufast.recoder.encoder.video.VideoCodecStatus encode(VideoFrame frame);
+    VideoCodecStatus encode(VideoFrame frame);
 
     String getImplementationName();
 
