@@ -108,10 +108,7 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 swTexture.updateTexImage();
                 swTexture.getTransformMatrix(textureMatrix);
                 mPTime.record();
-
                 int srcRgbId = mOesToRgbFilter.drawTexture(textures[0], textureMatrix);
-
-                int aniTextureId = mScaleFilter.drawTexture(srcRgbId);
                 int newTexId = 0;
                 if (mCallback != null) {
                     newTexId = mCallback.onFrameCallback(getEGLContext(), srcRgbId, srcTexWidth, srcTexHeight);
