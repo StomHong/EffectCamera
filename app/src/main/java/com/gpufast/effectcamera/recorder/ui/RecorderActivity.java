@@ -1,8 +1,5 @@
 package com.gpufast.effectcamera.recorder.ui;
 
-import android.graphics.ImageFormat;
-import android.hardware.Camera;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;

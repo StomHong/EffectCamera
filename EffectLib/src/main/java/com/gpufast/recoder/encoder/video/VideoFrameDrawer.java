@@ -5,7 +5,6 @@ import android.graphics.Point;
 
 public class VideoFrameDrawer {
 
-
     // These points are used to calculate the size of the part of the frame we are rendering.
     final static float[] srcPoints =
             new float[]{0f /* x0 */, 0f /* y0 */, 1f /* x1 */, 0f /* y1 */, 0f /* x2 */, 1f /* y2 */};

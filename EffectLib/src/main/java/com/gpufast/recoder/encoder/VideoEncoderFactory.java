@@ -1,7 +1,7 @@
 package com.gpufast.recoder.encoder;
 
-import com.gpufast.recoder.encoder.video2.VideoCodecInfo;
-import com.gpufast.recoder.encoder.video2.VideoEncoder;
+import com.gpufast.recoder.encoder.video.VideoCodecInfo;
+import com.gpufast.recoder.encoder.video.VideoEncoder;
 
 public interface VideoEncoderFactory {
     /**

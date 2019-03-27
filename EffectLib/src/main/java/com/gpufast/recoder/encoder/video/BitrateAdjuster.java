@@ -1,21 +1,20 @@
 package com.gpufast.recoder.encoder.video;
 
-/** Object that adjusts the bitrate of a hardware codec. */
+/** 用于调整硬件编解码器的码率. */
 interface BitrateAdjuster {
   /**
-   * Sets the target bitrate in bits per second and frameRate in frames per second.
+   * 设置目标码率（bps) 和帧率(fps)
    */
   void setTargets(int targetBitrateBps, int targetFps);
 
   /**
-   * Reports that a frame of the given size has been encoded.  Returns true if the bitrate should
-   * be adjusted.
+   * 报告指定大小的frame已经编码完成，如果码率需要调整，则返回true
    */
   void reportEncodedFrame(int size);
 
-  /** Gets the current bitrate. */
+  /** 获取当前的码率. */
   int getAdjustedBitrateBps();
 
-  /** Gets the frameRate for initial codec configuration. */
+  /** 获取配置编码器的帧率. */
   int getCodecConfigFrameRate();
 }

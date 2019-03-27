@@ -127,7 +127,6 @@ public abstract class BaseRender {
         }
 
         private void onSizeChanged(int width, int height) {
-
             callback.onSizeChanged(width, height);
         }
 

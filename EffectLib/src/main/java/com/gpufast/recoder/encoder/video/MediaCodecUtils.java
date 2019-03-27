@@ -1,12 +1,9 @@
 
-package com.gpufast.recoder.encoder.video2;
+package com.gpufast.recoder.encoder.video;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.os.Build;
-
-
-import java.util.Map;
 
 /** Container class for static constants and helpers used with MediaCodec. */
 // We are forced to use the old API because we want to support API level < 21.

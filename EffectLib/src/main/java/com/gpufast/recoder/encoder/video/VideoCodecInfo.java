@@ -1,4 +1,4 @@
-package com.gpufast.recoder.encoder.video2;
+package com.gpufast.recoder.encoder.video;
 
 import java.util.Arrays;
 import java.util.HashMap;

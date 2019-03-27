@@ -1,6 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -33,8 +31,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:' + rootProject.ext.supportVersion
     implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
     implementation project(':effectlib')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
-repositories {
-    mavenCentral()
-}
+

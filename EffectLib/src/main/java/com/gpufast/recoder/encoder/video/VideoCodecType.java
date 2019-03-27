@@ -1,4 +1,4 @@
-package com.gpufast.recoder.encoder.video2;
+package com.gpufast.recoder.encoder.video;
 
 /**
  * 视频编解码器的类型

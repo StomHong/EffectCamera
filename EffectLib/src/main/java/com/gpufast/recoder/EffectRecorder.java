@@ -2,19 +2,11 @@ package com.gpufast.recoder;
 
 import android.opengl.EGLContext;
 
-import com.gpufast.recoder.encoder.video2.HardwareVideoEncoderFactory;
-import com.gpufast.recoder.encoder.video2.VideoCodecInfo;
-import com.gpufast.recoder.encoder.video2.VideoCodecType;
-import com.gpufast.recoder.encoder.video2.VideoEncoder;
-
 public class EffectRecorder implements IRecorder {
     private static final String TAG = "EffectRecorder";
 
     private boolean startRecorder = false;
 
-    private VideoCodecInfo inputCodecInfo = null;
-    private VideoEncoder mVideoEncoder = null;
-    private boolean mVideoEncoderInit = false;
 
     EffectRecorder() {
     }

@@ -1,5 +1,6 @@
 package com.gpufast.recoder.encoder.video;
 
+
 /**
  * BitrateAdjuster that adjusts the bitrate to compensate for changes in the framerate.  Used with
  * hardware codecs that assume the framerate never changes.
