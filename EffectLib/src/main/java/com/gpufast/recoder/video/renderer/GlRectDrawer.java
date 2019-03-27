@@ -1,4 +1,4 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.renderer;
 
 /** Simplest possible GL shader that just draws frames as opaque quads. */
 public class GlRectDrawer extends GlGenericDrawer {

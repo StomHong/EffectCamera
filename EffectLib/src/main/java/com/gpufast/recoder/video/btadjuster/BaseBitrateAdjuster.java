@@ -1,6 +1,6 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.btadjuster;
 
-class BaseBitrateAdjuster implements BitrateAdjuster {
+public class BaseBitrateAdjuster implements BitrateAdjuster {
     protected int targetBitrateBps;
     protected int targetFps;
     @Override

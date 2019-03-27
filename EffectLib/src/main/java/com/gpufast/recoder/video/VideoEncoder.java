@@ -1,4 +1,6 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video;
+
+import com.gpufast.recoder.video.encoder.VideoCodecStatus;
 
 public interface VideoEncoder {
     class VideoSettings {

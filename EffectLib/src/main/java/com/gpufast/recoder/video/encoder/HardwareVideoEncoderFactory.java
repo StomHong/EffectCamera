@@ -1,11 +1,13 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.encoder;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.opengl.EGLContext;
 import android.os.Build;
 
-import com.gpufast.recoder.encoder.VideoEncoderFactory;
+import com.gpufast.recoder.video.VideoEncoderFactory;
+import com.gpufast.recoder.video.VideoEncoder;
+import com.gpufast.recoder.video.btadjuster.BaseBitrateAdjuster;
 import com.gpufast.utils.ELog;
 
 import java.util.ArrayList;
@@ -13,8 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 
-import static com.gpufast.recoder.encoder.video.MediaCodecUtils.EXYNOS_PREFIX;
-import static com.gpufast.recoder.encoder.video.MediaCodecUtils.QCOM_PREFIX;
+import static com.gpufast.recoder.video.encoder.MediaCodecUtils.EXYNOS_PREFIX;
+import static com.gpufast.recoder.video.encoder.MediaCodecUtils.QCOM_PREFIX;
 
 public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
@@ -106,10 +108,10 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
     }
 
 
-
     //h264硬编码器黑名单
     private static final List<String> H264_HW_EXCEPTION_MODELS =
             Arrays.asList("SAMSUNG-SGH-I337", "Nexus 7", "Nexus 4");
+
     /**
      * 如果是高通的处理器，
      * 则4.4之后支持硬编码，三星的处理器5.1之后支持
@@ -131,7 +133,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         for (VideoCodecType type : new VideoCodecType[]{VideoCodecType.H264}) {
             MediaCodecInfo codecInfo = findCodecForType(type);
             if (codecInfo != null) {
-                if(isH264HighProfileSupported(codecInfo)){
+                if (isH264HighProfileSupported(codecInfo)) {
                     supportedCodecInfos.add(new VideoCodecInfo(type, VideoCodecInfo.Profile.HHEIGHT));
                 }
                 supportedCodecInfos.add(new VideoCodecInfo(type, VideoCodecInfo.Profile.BASE_LINE));

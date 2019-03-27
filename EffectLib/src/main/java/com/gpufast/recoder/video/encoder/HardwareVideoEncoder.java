@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.encoder;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
@@ -19,6 +19,12 @@ import android.os.Bundle;
 import android.view.Surface;
 
 import com.gpufast.gles.EglCore;
+import com.gpufast.recoder.video.EncodedImage;
+import com.gpufast.recoder.video.VideoEncoder;
+import com.gpufast.recoder.video.VideoFrame;
+import com.gpufast.recoder.video.btadjuster.BitrateAdjuster;
+import com.gpufast.recoder.video.renderer.GlRectDrawer;
+import com.gpufast.recoder.video.renderer.VideoFrameDrawer;
 import com.gpufast.utils.ELog;
 import com.gpufast.utils.ThreadUtils;
 

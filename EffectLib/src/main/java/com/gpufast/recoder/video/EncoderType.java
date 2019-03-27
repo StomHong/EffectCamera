@@ -1,4 +1,4 @@
-package com.gpufast.recoder.encoder;
+package com.gpufast.recoder.video;
 
 public enum EncoderType {
 

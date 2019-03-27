@@ -1,5 +1,5 @@
 
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.encoder;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;

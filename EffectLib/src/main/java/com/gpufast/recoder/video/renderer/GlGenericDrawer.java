@@ -1,4 +1,4 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.renderer;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
@@ -61,8 +61,7 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
             + "  tc = (tex_mat * in_tc).xy;\n"
             + "}\n";
 
-    // Vertex coordinates in Normalized Device Coordinates, i.e. (-1, -1) is bottom-left and (1, 1)
-    // is top-right.
+
     private static final FloatBuffer FULL_RECTANGLE_BUFFER = GLESUtil.createFloatBuffer(new float[]{
             -1.0f, -1.0f, // Bottom left.
             1.0f, -1.0f, // Bottom right.
@@ -70,7 +69,7 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
             1.0f, 1.0f, // Top right.
     });
 
-    // Texture coordinates - (0, 0) is bottom-left and (1, 1) is top-right.
+
     private static final FloatBuffer FULL_RECTANGLE_TEXTURE_BUFFER =
             GLESUtil.createFloatBuffer(new float[]{
                     0.0f, 0.0f, // Bottom left.
@@ -127,18 +126,14 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
         this(DEFAULT_VERTEX_SHADER_STRING, genericFragmentSource, shaderCallbacks);
     }
 
-    public GlGenericDrawer(
-            String vertexShader, String genericFragmentSource, ShaderCallbacks shaderCallbacks) {
+    public GlGenericDrawer(String vertexShader, String genericFragmentSource, ShaderCallbacks shaderCallbacks) {
         this.vertexShader = vertexShader;
         this.genericFragmentSource = genericFragmentSource;
         this.shaderCallbacks = shaderCallbacks;
     }
 
-    // Visible for testing.
-    GlShader createShader(ShaderType shaderType) {
-        return new GlShader(
-                vertexShader, createFragmentShaderString(genericFragmentSource, shaderType));
-    }
+
+
 
     /**
      * Draw an OES texture frame with specified texture transformation matrix. Required resources are
@@ -147,8 +142,9 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
     @Override
     public void drawOes(int oesTextureId, float[] texMatrix, int frameWidth, int frameHeight,
                         int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
-        prepareShader(
-                ShaderType.OES, texMatrix, frameWidth, frameHeight, viewportWidth, viewportHeight);
+
+        //绘制前准备
+        prepareShader(ShaderType.OES, texMatrix, frameWidth, frameHeight, viewportWidth, viewportHeight);
         // Bind the texture.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, oesTextureId);
@@ -166,8 +162,7 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
     @Override
     public void drawRgb(int textureId, float[] texMatrix, int frameWidth, int frameHeight,
                         int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
-        prepareShader(
-                ShaderType.RGB, texMatrix, frameWidth, frameHeight, viewportWidth, viewportHeight);
+        prepareShader(ShaderType.RGB, texMatrix, frameWidth, frameHeight, viewportWidth, viewportHeight);
         // Bind the texture.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
@@ -238,24 +233,17 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
 
         // Upload the vertex coordinates.
         GLES20.glEnableVertexAttribArray(inPosLocation);
-        GLES20.glVertexAttribPointer(inPosLocation, /* size= */ 2,
-                /* type= */ GLES20.GL_FLOAT, /* normalized= */ false, /* stride= */ 0,
-                FULL_RECTANGLE_BUFFER);
+        GLES20.glVertexAttribPointer(inPosLocation, 2, GLES20.GL_FLOAT, false, 0, FULL_RECTANGLE_BUFFER);
 
-        // Upload the texture coordinates.
         GLES20.glEnableVertexAttribArray(inTcLocation);
-        GLES20.glVertexAttribPointer(inTcLocation, /* size= */ 2,
-                /* type= */ GLES20.GL_FLOAT, /* normalized= */ false, /* stride= */ 0,
-                FULL_RECTANGLE_TEXTURE_BUFFER);
-
-        // Upload the texture transformation matrix.
-        GLES20.glUniformMatrix4fv(
-                texMatrixLocation, 1 /* count= */, false /* transpose= */, texMatrix, 0 /* offset= */);
-
-        // Do custom per-frame shader preparation.
-        shaderCallbacks.onPrepareShader(
-                shader, texMatrix, frameWidth, frameHeight, viewportWidth, viewportHeight);
+        GLES20.glVertexAttribPointer(inTcLocation, 2, GLES20.GL_FLOAT, false, 0, FULL_RECTANGLE_TEXTURE_BUFFER);
+        GLES20.glUniformMatrix4fv(texMatrixLocation, 1, false, texMatrix, 0);
+        shaderCallbacks.onPrepareShader(shader, texMatrix, frameWidth, frameHeight, viewportWidth, viewportHeight);
         GLESUtil.checkGlError("Prepare shader");
+    }
+
+    private GlShader createShader(ShaderType shaderType) {
+        return new GlShader(vertexShader, createFragmentShaderString(genericFragmentSource, shaderType));
     }
 
     /**

@@ -1,11 +1,11 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.btadjuster;
 
 
 /**
  * BitrateAdjuster that adjusts the bitrate to compensate for changes in the framerate.  Used with
  * hardware codecs that assume the framerate never changes.
  */
-class FrameRateBitrateAdjuster extends BaseBitrateAdjuster {
+public class FrameRateBitrateAdjuster extends BaseBitrateAdjuster {
   private static final int INITIAL_FPS = 30;
 
   @Override

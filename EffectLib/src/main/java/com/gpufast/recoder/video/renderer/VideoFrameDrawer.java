@@ -1,7 +1,10 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.renderer;
 
 import android.graphics.Matrix;
 import android.graphics.Point;
+
+import com.gpufast.recoder.video.VideoFrame;
+import com.gpufast.recoder.video.renderer.RendererCommon;
 
 public class VideoFrameDrawer {
 

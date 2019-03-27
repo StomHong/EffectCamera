@@ -1,4 +1,4 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video;
 
 import android.graphics.Matrix;
 import android.opengl.GLES11Ext;

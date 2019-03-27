@@ -1,7 +1,7 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video.btadjuster;
 
 /** 用于调整硬件编解码器的码率. */
-interface BitrateAdjuster {
+public interface BitrateAdjuster {
   /**
    * 设置目标码率（bps) 和帧率(fps)
    */

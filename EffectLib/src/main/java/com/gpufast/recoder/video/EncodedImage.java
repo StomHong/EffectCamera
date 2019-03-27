@@ -1,4 +1,4 @@
-package com.gpufast.recoder.encoder.video;
+package com.gpufast.recoder.video;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
