@@ -151,7 +151,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     }
 
     @Override
-    public VideoCodecStatus initEncode(VideoSettings settings, Callback callback) {
+    public VideoCodecStatus initEncoder(VideoSettings settings, Callback callback) {
         encodeThreadChecker.checkIsOnValidThread();
         this.callback = callback;
         this.width = settings.width;
@@ -164,7 +164,7 @@ class HardwareVideoEncoder implements VideoEncoder {
         adjustedBitrate = bitrateAdjuster.getAdjustedBitrateBps();
 
         ELog.d(TAG,
-                "initEncode: " + width + " x " + height + ". @ " + settings.startBitrate
+                "initEncoder: " + width + " x " + height + ". @ " + settings.startBitrate
                         + "kbps. Fps: " + settings.maxFrameRate);
         return initEncodeInternal();
     }
@@ -429,7 +429,6 @@ class HardwareVideoEncoder implements VideoEncoder {
     @Override
     public VideoCodecStatus release() {
         encodeThreadChecker.checkIsOnValidThread();
-
         final VideoCodecStatus returnValue;
         if (outputThread == null) {
             returnValue = VideoCodecStatus.OK;

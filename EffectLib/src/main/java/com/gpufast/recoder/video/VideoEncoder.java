@@ -3,6 +3,7 @@ package com.gpufast.recoder.video;
 import com.gpufast.recoder.video.encoder.VideoCodecStatus;
 
 public interface VideoEncoder {
+
     class VideoSettings {
         //宽度高度
         public final int width;
@@ -30,7 +31,7 @@ public interface VideoEncoder {
     }
 
     //初始化编码器
-    VideoCodecStatus initEncode(VideoSettings settings, Callback encodeCallback);
+    VideoCodecStatus initEncoder(VideoSettings settings, Callback encodeCallback);
 
     VideoCodecStatus encode(VideoFrame frame);
 

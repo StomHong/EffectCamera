@@ -20,8 +20,8 @@ public class VideoCodecInfo {
     public final String name;
     public final Map<String, String> params;
 
-    public VideoCodecInfo(VideoCodecType type, Profile profile) {
-        this.name = type.mimeType();
+    public VideoCodecInfo(String codecName, Profile profile) {
+        this.name = codecName;
         this.params = new HashMap<>();
         switch (profile) {
             case BASE_LINE:

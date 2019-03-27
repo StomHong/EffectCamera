@@ -22,7 +22,7 @@ public class VideoFrameDrawer {
 
     public void drawFrame(VideoFrame frame, RendererCommon.GlDrawer drawer, Matrix additionalRenderMatrix) {
 
-        drawFrame(frame, drawer, additionalRenderMatrix, 0 /* viewportX */, 0 /* viewportY */,
+        drawFrame(frame, drawer, additionalRenderMatrix, 0 , 0 ,
                 frame.getRotatedWidth(), frame.getRotatedHeight());
     }
 
@@ -33,6 +33,7 @@ public class VideoFrameDrawer {
         final int width = frame.getRotatedWidth();
         final int height = frame.getRotatedHeight();
 
+        //计算应用矩阵后目标视频的宽度和高度
         calculateTransformedRenderSize(width, height, additionalRenderMatrix);
 
         final boolean isTextureFrame = frame.getBuffer() instanceof VideoFrame.TextureBuffer;

@@ -238,6 +238,7 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
         GLES20.glEnableVertexAttribArray(inTcLocation);
         GLES20.glVertexAttribPointer(inTcLocation, 2, GLES20.GL_FLOAT, false, 0, FULL_RECTANGLE_TEXTURE_BUFFER);
         GLES20.glUniformMatrix4fv(texMatrixLocation, 1, false, texMatrix, 0);
+
         shaderCallbacks.onPrepareShader(shader, texMatrix, frameWidth, frameHeight, viewportWidth, viewportHeight);
         GLESUtil.checkGlError("Prepare shader");
     }
