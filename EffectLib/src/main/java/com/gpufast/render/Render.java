@@ -6,14 +6,13 @@ import android.opengl.EGLContext;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.util.Log;
 import android.view.Surface;
 
 import com.gpufast.effect.filter.CropScaleFilter;
 import com.gpufast.effect.filter.ImageFilter;
 import com.gpufast.effect.filter.OesToRgbFilter;
-import com.gpufast.recoder.IRecorder;
-import com.gpufast.recoder.RecorderFactory;
+import com.gpufast.recorder.IRecorder;
+import com.gpufast.recorder.RecorderFactory;
 import com.gpufast.utils.ELog;
 
 public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailableListener {

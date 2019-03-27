@@ -4,9 +4,8 @@ import android.view.SurfaceView;
 
 import com.gpufast.camera.CameraEngine;
 import com.gpufast.effectcamera.recorder.contract.RecorderContract;
-import com.gpufast.recoder.EffectRecorder;
-import com.gpufast.recoder.RecorderFactory;
-import com.gpufast.recoder.RecorderParams;
+import com.gpufast.recorder.RecorderFactory;
+import com.gpufast.recorder.RecorderParams;
 import com.gpufast.utils.ELog;
 
 public class RecorderPresenter implements RecorderContract.Presenter {
