@@ -18,7 +18,7 @@ public class RecorderParams {
     private String videoPath;
 
     //是否将音频一起录制进去
-    private boolean isAuido = true;
+    private boolean hasAudio = true;
 
     private SpeedType speedType;
 
@@ -59,12 +59,12 @@ public class RecorderParams {
         this.videoPath = videoPath;
     }
 
-    public boolean isAuido() {
-        return isAuido;
+    public boolean isHasAudio() {
+        return hasAudio;
     }
 
-    public void setAuido(boolean auido) {
-        isAuido = auido;
+    public void setHasAudio(boolean hasAudio) {
+        this.hasAudio = hasAudio;
     }
 
     public SpeedType getSpeedType() {

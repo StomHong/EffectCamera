@@ -1,9 +1,13 @@
 package com.gpufast.recoder.video;
 
+import android.opengl.EGLContext;
+
 import com.gpufast.recoder.video.encoder.VideoCodecInfo;
-import com.gpufast.recoder.video.VideoEncoder;
+
 
 public interface VideoEncoderFactory {
+
+    void setShareContext(EGLContext shareContext);
 
     VideoEncoder createEncoder(VideoCodecInfo inputCodecInfo);
 

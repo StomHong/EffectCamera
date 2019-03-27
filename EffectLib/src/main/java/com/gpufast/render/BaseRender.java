@@ -18,7 +18,6 @@ public abstract class BaseRender {
 
     private RenderThread mRenderThread;
 
-
     public BaseRender(Surface surface) {
         onRenderInit();
         RenderCallback callback = getRenderCallback();
@@ -50,7 +49,6 @@ public abstract class BaseRender {
         if (mRenderThread.mReady) {
             mRenderThread.getHandler().sendFrameAvailable();
         }
-
     }
 
     protected abstract RenderCallback getRenderCallback();

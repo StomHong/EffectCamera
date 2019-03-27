@@ -94,7 +94,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     private final ThreadUtils.ThreadChecker outputThreadChecker = new ThreadUtils.ThreadChecker();
 
     //初始化后不能改变，直到释放位置
-    private Callback callback;
+    private VideoEncoderCallback callback;
 
     // --- Valid and immutable while an encoding session is running.
     private MediaCodecWrapper codec;
@@ -151,7 +151,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     }
 
     @Override
-    public VideoCodecStatus initEncoder(VideoSettings settings, Callback callback) {
+    public VideoCodecStatus initEncoder(VideoSettings settings, VideoEncoderCallback callback) {
         encodeThreadChecker.checkIsOnValidThread();
         this.callback = callback;
         this.width = settings.width;
@@ -166,6 +166,7 @@ class HardwareVideoEncoder implements VideoEncoder {
         ELog.d(TAG,
                 "initEncoder: " + width + " x " + height + ". @ " + settings.startBitrate
                         + "kbps. Fps: " + settings.maxFrameRate);
+
         return initEncodeInternal();
     }
 

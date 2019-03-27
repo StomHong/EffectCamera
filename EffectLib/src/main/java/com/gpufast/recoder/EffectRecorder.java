@@ -2,7 +2,9 @@ package com.gpufast.recoder;
 
 import android.opengl.EGLContext;
 
+import com.gpufast.recoder.muxer.Mp4Muxer;
 import com.gpufast.recoder.video.EncoderType;
+import com.gpufast.recoder.video.VideoClient;
 import com.gpufast.recoder.video.VideoEncoder;
 import com.gpufast.recoder.video.VideoEncoderFactory;
 import com.gpufast.recoder.video.encoder.VideoCodecInfo;
@@ -12,12 +14,18 @@ public class EffectRecorder implements IRecorder {
     private static final String TAG = "EffectRecorder";
 
     private boolean startRecorder = false;
-    private VideoEncoderFactory videoEncoderFactory;
-    private VideoEncoder mVideoEncoder;
-    private VideoCodecInfo videoCodecInfo;
 
+    private EGLContext shareContext;
+
+    private VideoEncoderFactory videoEncoderFactory;
+    private VideoCodecInfo videoCodecInfo;
+    private VideoEncoder.VideoSettings videoSettings;
+    private VideoClient mVideoClient;
 
     private RecorderParams recorderParams;
+
+    private Mp4Muxer mMp4Muxer;
+
 
     EffectRecorder() {
     }
@@ -30,6 +38,11 @@ public class EffectRecorder implements IRecorder {
             videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
         }
         if (videoEncoderFactory != null) {
+
+            if (shareContext != null) {
+                videoEncoderFactory.setShareContext(shareContext);
+            }
+
             VideoCodecInfo[] supportedCodecs = videoEncoderFactory.getSupportedCodecs();
             if (supportedCodecs != null && supportedCodecs.length > 0) {
                 videoCodecInfo = supportedCodecs[0];
@@ -42,7 +55,10 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public void setShareContext(EGLContext shareContext) {
-
+        this.shareContext = shareContext;
+        if (videoEncoderFactory != null) {
+            videoEncoderFactory.setShareContext(shareContext);
+        }
     }
 
     @Override
@@ -53,12 +69,16 @@ public class EffectRecorder implements IRecorder {
     @Override
     public void startRecorder() {
         if (videoEncoderFactory != null) {
-            mVideoEncoder = videoEncoderFactory.createEncoder(videoCodecInfo);
-            if (mVideoEncoder == null) {
-                ELog.e(TAG,"can't create video encoder");
+            VideoEncoder videoEncoder = videoEncoderFactory.createEncoder(videoCodecInfo);
+            if (videoEncoder == null) {
+                ELog.e(TAG, "can't create video encoder");
                 return;
             }
-            //mVideoEncoder.initEncoder();
+            mMp4Muxer = new Mp4Muxer();
+            mVideoClient = new VideoClient(videoEncoder,videoSettings,mMp4Muxer);
+            mVideoClient.start();
+
+
         }
     }
 
@@ -71,7 +91,7 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp) {
-
+        mVideoClient.sendVideoFrame(textureId,srcWidth,srcHeight,timeStamp);
     }
 
     @Override

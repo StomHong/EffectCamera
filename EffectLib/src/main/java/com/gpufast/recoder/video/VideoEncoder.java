@@ -22,7 +22,7 @@ public interface VideoEncoder {
         }
     }
 
-    interface Callback {
+    interface VideoEncoderCallback {
         void onEncodedFrame(EncodedImage frame);
     }
 
@@ -31,7 +31,7 @@ public interface VideoEncoder {
     }
 
     //初始化编码器
-    VideoCodecStatus initEncoder(VideoSettings settings, Callback encodeCallback);
+    VideoCodecStatus initEncoder(VideoSettings settings, VideoEncoderCallback encodeCallback);
 
     VideoCodecStatus encode(VideoFrame frame);
 

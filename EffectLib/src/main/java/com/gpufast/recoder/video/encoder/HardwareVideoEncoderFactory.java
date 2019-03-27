@@ -24,6 +24,11 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
     private EGLContext sharedContext;
 
     @Override
+    public void setShareContext(EGLContext shareContext) {
+        sharedContext = shareContext;
+    }
+
+    @Override
     public VideoEncoder createEncoder(VideoCodecInfo inputCodecInfo) {
 
         //编码器的类型
@@ -34,7 +39,6 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
             ELog.e(TAG, "can't find Encoder by type" + inputCodecInfo.name);
             return null;
         }
-
 
         String codecName = info.getName();
         String mime = type.mimeType();
