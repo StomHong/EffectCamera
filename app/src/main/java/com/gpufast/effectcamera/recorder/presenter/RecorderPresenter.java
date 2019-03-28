@@ -37,7 +37,7 @@ public class RecorderPresenter implements RecorderContract.Presenter {
 
     @Override
     public void setRecorderParameter(RecorderParams params) {
-
+        RecorderFactory.getRecorderInstance().setParams(params);
     }
 
     @Override

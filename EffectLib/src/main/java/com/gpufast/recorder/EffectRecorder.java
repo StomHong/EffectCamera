@@ -75,7 +75,7 @@ public class EffectRecorder implements IRecorder {
                 return;
             }
             mMp4Muxer = new Mp4Muxer();
-            mVideoClient = new VideoClient(videoEncoder,videoSettings,mMp4Muxer);
+            mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
 
 
@@ -91,12 +91,13 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp) {
-        mVideoClient.sendVideoFrame(textureId,srcWidth,srcHeight,timeStamp);
+        mVideoClient.sendVideoFrame(textureId, srcWidth, srcHeight, timeStamp);
     }
 
     @Override
     public int getFps() {
-        return 0;
+        int fps = 25;
+        return fps;
     }
 
 

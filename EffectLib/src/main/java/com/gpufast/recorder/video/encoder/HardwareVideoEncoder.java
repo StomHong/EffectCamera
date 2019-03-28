@@ -46,9 +46,13 @@ class HardwareVideoEncoder implements VideoEncoder {
 
     private static final String TAG = "HardwareVideoEncoder";
 
-    /** 码率控制模式---value api21之前没有这个参数{@link android.media.MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR}*/
+    /**
+     * 码率控制模式---value api21之前没有这个参数{@link android.media.MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR}
+     */
     private static final int VIDEO_ControlRateConstant = 2;
-    /** 码率控制模式--key，在api21之前没有这个常量 {@link MediaFormat#KEY_BITRATE_MODE}*/
+    /**
+     * 码率控制模式--key，在api21之前没有这个常量 {@link MediaFormat#KEY_BITRATE_MODE}
+     */
     private static final String KEY_BITRATE_MODE = "bitrate-mode";
 
     private static final int PROFILE_BASELINE = 0x01;
@@ -78,7 +82,6 @@ class HardwareVideoEncoder implements VideoEncoder {
     private final int keyFrameIntervalSec;
 
 
-
     private final BitrateAdjuster bitrateAdjuster;
     private final EGLContext sharedContext;
 
@@ -101,11 +104,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     // Thread that delivers encoded frames to the user callback.
     private Thread outputThread;
 
-    // EGL base wrapping the shared texture context.  Holds hooks to both the shared context and the
-    // input surface.  Making this base current allows textures from the context to be drawn onto the
-    // surface.
     private EglCore mEglCore;
-    // Input surface for he codec.  The encoder will draw input textures onto this surface.
     private Surface textureInputSurface;
 
     private int width;
@@ -195,6 +194,7 @@ class HardwareVideoEncoder implements VideoEncoder {
             //配置H264 profile 和level
             if (codecType == VideoCodecType.H264) {
                 String profile = params.get(VideoCodecInfo.H264_PROFILE);
+                profile = profile == null ? VideoCodecInfo.VALUE_BASE_LINE : profile;
                 switch (profile) {
                     case VideoCodecInfo.VALUE_BASE_LINE:
                         format.setInteger(VideoCodecInfo.H264_PROFILE, PROFILE_BASELINE);
@@ -305,8 +305,9 @@ class HardwareVideoEncoder implements VideoEncoder {
 
     /**
      * 重置编码器
-     * @param newWidth          newWidth
-     * @param newHeight         newHeight
+     *
+     * @param newWidth  newWidth
+     * @param newHeight newHeight
      * @return
      */
     private VideoCodecStatus resetCodec(int newWidth, int newHeight) {
@@ -424,7 +425,6 @@ class HardwareVideoEncoder implements VideoEncoder {
             return VideoCodecStatus.ERROR;
         }
     }
-
 
 
     @Override
