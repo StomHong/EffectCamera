@@ -11,9 +11,9 @@ import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
 
 public class EffectRecorder implements IRecorder {
-    private static final String TAG = "EffectRecorder";
+    private static final String TAG = EffectRecorder.class.getSimpleName();
 
-    private boolean startRecorder = false;
+    private volatile boolean recorderStarted = false;
 
     private EGLContext shareContext;
 
@@ -22,9 +22,12 @@ public class EffectRecorder implements IRecorder {
     private VideoEncoder.VideoSettings videoSettings;
     private VideoClient mVideoClient;
 
-    private RecorderParams recorderParams;
-
     private Mp4Muxer mMp4Muxer;
+
+    //开始码率
+    public final int startBitrate = 4000; // Kilobits per second.
+    //帧率
+    public final int maxFrameRate = 30;
 
 
     EffectRecorder() {
@@ -33,8 +36,13 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public void setParams(RecorderParams params) {
-        recorderParams = params;
-        if (recorderParams.isHwEncoder()) {
+
+        if (params == null) return;
+
+        videoSettings = new VideoEncoder.VideoSettings(params.getVideoWidth(),
+                params.getVideoHeight(), startBitrate, maxFrameRate);
+
+        if (params.isHwEncoder()) {
             videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
         }
         if (videoEncoderFactory != null) {
@@ -48,7 +56,7 @@ public class EffectRecorder implements IRecorder {
                 videoCodecInfo = supportedCodecs[0];
                 ELog.d(TAG, "find a codec :" + videoCodecInfo.name);
             } else {
-                ELog.e(TAG, "don't find a available codec :");
+                ELog.e(TAG, "can't find a available codec :");
             }
         }
     }
@@ -63,11 +71,14 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public boolean isRecording() {
-        return false;
+        return recorderStarted;
     }
 
     @Override
     public void startRecorder() {
+        if (recorderStarted) return;
+        recorderStarted = true;
+        ELog.d(TAG, "videoEncoderFactory != null ?--->" + (videoEncoderFactory != null));
         if (videoEncoderFactory != null) {
             VideoEncoder videoEncoder = videoEncoderFactory.createEncoder(videoCodecInfo);
             if (videoEncoder == null) {
@@ -75,28 +86,29 @@ public class EffectRecorder implements IRecorder {
                 return;
             }
             mMp4Muxer = new Mp4Muxer();
-            mVideoClient = new VideoClient(videoEncoder,videoSettings,mMp4Muxer);
+            mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
-
-
         }
     }
 
 
     @Override
-    public void jointVideo() {
+    public void stitchVideo() {
 
     }
 
 
     @Override
     public void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp) {
-        mVideoClient.sendVideoFrame(textureId,srcWidth,srcHeight,timeStamp);
+        if (mVideoClient != null && recorderStarted) {
+            mVideoClient.sendVideoFrame(textureId, srcWidth, srcHeight, timeStamp);
+        }
+
     }
 
     @Override
     public int getFps() {
-        return 0;
+        return maxFrameRate;
     }
 
 

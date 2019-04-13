@@ -37,17 +37,17 @@ public class RecorderPresenter implements RecorderContract.Presenter {
 
     @Override
     public void setRecorderParameter(RecorderParams params) {
-
+        RecorderFactory.factory().setParams(params);
     }
 
     @Override
     public void startRecorder() {
-        RecorderFactory.getRecorderInstance().startRecorder();
+        RecorderFactory.factory().startRecorder();
     }
 
     @Override
     public void stopRecorder() {
-        RecorderFactory.getRecorderInstance().stopRecorder();
+        RecorderFactory.factory().stopRecorder();
     }
 
     @Override

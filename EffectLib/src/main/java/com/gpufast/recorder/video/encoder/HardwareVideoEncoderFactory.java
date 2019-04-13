@@ -43,6 +43,8 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         String codecName = info.getName();
         String mime = type.mimeType();
 
+        ELog.d(TAG,"codecName :"+codecName +" mime:"+mime);
+
         Integer surfaceColorFormat = MediaCodecUtils.selectColorFormat(
                 MediaCodecUtils.TEXTURE_COLOR_FORMATS, info.getCapabilitiesForType(mime));
 
@@ -69,21 +71,18 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
 
     private MediaCodecInfo findCodecForType(VideoCodecType type) {
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            for (int i = 0; i < MediaCodecList.getCodecCount(); ++i) {
-                MediaCodecInfo info = null;
-                try {
-                    info = MediaCodecList.getCodecInfoAt(i);
-                } catch (IllegalArgumentException e) {
-                    ELog.e(TAG, "Cannot retrieve encoder codec info", e);
-                }
-                if (info == null || !info.isEncoder()) {
-                    continue;
-                }
-                if (isSupportedCodec(info, type)) {
-                    return info;
-                }
+        for (int i = 0; i < MediaCodecList.getCodecCount(); ++i) {
+            MediaCodecInfo info = null;
+            try {
+                info = MediaCodecList.getCodecInfoAt(i);
+            } catch (IllegalArgumentException e) {
+                ELog.e(TAG, "Cannot retrieve encoder codec info", e);
+            }
+            if (info == null || !info.isEncoder()) {
+                continue;
+            }
+            if (isSupportedCodec(info, type)) {
+                return info;
             }
         }
         return null;
@@ -137,10 +136,11 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         for (VideoCodecType type : new VideoCodecType[]{VideoCodecType.H264}) {
             MediaCodecInfo codecInfo = findCodecForType(type);
             if (codecInfo != null) {
+                String name = type.name();
                 if (isH264HighProfileSupported(codecInfo)) {
-                    supportedCodecInfos.add(new VideoCodecInfo(codecInfo.getName(), VideoCodecInfo.Profile.HHEIGHT));
+                    supportedCodecInfos.add(new VideoCodecInfo(name, VideoCodecInfo.Profile.HHEIGHT));
                 }
-                supportedCodecInfos.add(new VideoCodecInfo(codecInfo.getName(), VideoCodecInfo.Profile.BASE_LINE));
+                supportedCodecInfos.add(new VideoCodecInfo(name, VideoCodecInfo.Profile.BASE_LINE));
             }
         }
         return supportedCodecInfos.toArray(new VideoCodecInfo[supportedCodecInfos.size()]);

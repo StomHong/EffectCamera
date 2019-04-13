@@ -23,7 +23,7 @@ public class RecorderParams {
     private SpeedType speedType;
 
     //背景音乐
-    private String backgroundMuiscUrl;
+    private String backgroundMusicUrl;
 
     private boolean hwEncoder = true;
 
@@ -75,12 +75,12 @@ public class RecorderParams {
         this.speedType = speedType;
     }
 
-    public String getBackgroundMuiscUrl() {
-        return backgroundMuiscUrl;
+    public String getBackgroundMusicUrl() {
+        return backgroundMusicUrl;
     }
 
-    public void setBackgroundMuiscUrl(String backgroundMuiscUrl) {
-        this.backgroundMuiscUrl = backgroundMuiscUrl;
+    public void setBackgroundMusicUrl(String backgroundMusicUrl) {
+        this.backgroundMusicUrl = backgroundMusicUrl;
     }
 
     public boolean isHwEncoder() {

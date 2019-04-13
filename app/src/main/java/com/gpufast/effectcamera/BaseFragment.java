@@ -1,6 +1,7 @@
 package com.gpufast.effectcamera;
 
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,4 +25,8 @@ public abstract class BaseFragment extends Fragment {
 
     protected abstract void onInitView();
 
+    @Nullable
+    public final <T extends View> T findViewById(@IdRes int id) {
+        return mRootView.findViewById(id);
+    }
 }

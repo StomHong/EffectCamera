@@ -61,9 +61,11 @@ public abstract class BaseRender {
 
     private static class RenderThread extends Thread {
         private final Object mStartLock = new Object();
+        private boolean mReady = false;
+
         private Surface surface;
         private RenderCallback callback;
-        private boolean mReady = false;
+
         private RenderHandler mHandler;
         private EglCore mEglCore;
 

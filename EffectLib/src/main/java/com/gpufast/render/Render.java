@@ -65,7 +65,7 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
         swTexture.setOnFrameAvailableListener(this);
 
 
-        mRecorder = RecorderFactory.getRecorderInstance();
+        mRecorder = RecorderFactory.factory();
         mPTime = new PresentationTime(mRecorder.getFps());
     }
 

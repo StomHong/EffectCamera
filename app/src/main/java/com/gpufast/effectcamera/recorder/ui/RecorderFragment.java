@@ -8,6 +8,7 @@ import com.gpufast.effectcamera.BaseFragment;
 import com.gpufast.effectcamera.R;
 import com.gpufast.effectcamera.recorder.contract.RecorderContract;
 import com.gpufast.effectcamera.recorder.presenter.RecorderPresenter;
+import com.gpufast.recorder.RecorderParams;
 
 public class RecorderFragment extends BaseFragment implements RecorderContract.View, View.OnClickListener {
     private static final String TAG = "RecorderFragment";
@@ -24,12 +25,31 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
 
     @Override
     protected void onInitView() {
-        mPreview = mRootView.findViewById(R.id.id_camera_preview);
-        mSwitchCameraBtn = mRootView.findViewById(R.id.id_switch_camera);
+        mPreview = findViewById(R.id.id_camera_preview);
+        mSwitchCameraBtn = findViewById(R.id.id_switch_camera);
         mSwitchCameraBtn.setOnClickListener(this);
+        mStartRecoderBtn = findViewById(R.id.id_start_recorder_btn);
+        mStartRecoderBtn.setOnClickListener(this);
         mPresenter = new RecorderPresenter();
+
+        initRecorderParams();
+
+
         mPresenter.attachView(this);
         mPresenter.init();
+    }
+
+    private void initRecorderParams() {
+
+        RecorderParams params = new RecorderParams();
+        params.setVideoWidth(720);
+        params.setVideoHeight(1280);
+        params.setHwEncoder(true);
+
+        mPresenter.setRecorderParameter(params);
+
+
+
     }
 
 
@@ -56,7 +76,7 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.id_switch_camera:
                 mPresenter.switchCamera();
                 break;

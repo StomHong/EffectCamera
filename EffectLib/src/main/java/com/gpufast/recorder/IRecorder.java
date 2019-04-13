@@ -4,6 +4,11 @@ import android.opengl.EGLContext;
 
 public interface IRecorder {
 
+    /**
+     * Set the video recording parameter
+     *
+     * @param params {@linkplain RecorderParams}
+     */
     void setParams(RecorderParams params);
 
     void setShareContext(EGLContext shareContext);
@@ -12,8 +17,8 @@ public interface IRecorder {
 
     void startRecorder();
 
-    //合成多段mp4
-    void jointVideo();
+
+    void stitchVideo();
 
     void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp);
 

@@ -16,6 +16,7 @@ import android.media.MediaFormat;
 import android.opengl.EGLContext;
 import android.opengl.GLES20;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Surface;
 
 import com.gpufast.gles.EglCore;
@@ -46,9 +47,13 @@ class HardwareVideoEncoder implements VideoEncoder {
 
     private static final String TAG = "HardwareVideoEncoder";
 
-    /** 码率控制模式---value api21之前没有这个参数{@link android.media.MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR}*/
+    /**
+     * 码率控制模式---value api21之前没有这个参数{@link android.media.MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR}
+     */
     private static final int VIDEO_ControlRateConstant = 2;
-    /** 码率控制模式--key，在api21之前没有这个常量 {@link MediaFormat#KEY_BITRATE_MODE}*/
+    /**
+     * 码率控制模式--key，在api21之前没有这个常量 {@link MediaFormat#KEY_BITRATE_MODE}
+     */
     private static final String KEY_BITRATE_MODE = "bitrate-mode";
 
     private static final int PROFILE_BASELINE = 0x01;
@@ -76,7 +81,6 @@ class HardwareVideoEncoder implements VideoEncoder {
     private final Map<String, String> params;
     //关键帧间隔时间(秒)
     private final int keyFrameIntervalSec;
-
 
 
     private final BitrateAdjuster bitrateAdjuster;
@@ -195,6 +199,8 @@ class HardwareVideoEncoder implements VideoEncoder {
             //配置H264 profile 和level
             if (codecType == VideoCodecType.H264) {
                 String profile = params.get(VideoCodecInfo.H264_PROFILE);
+                ELog.d(TAG, "video profile =" + profile);
+                if (profile == null) return VideoCodecStatus.ERROR;
                 switch (profile) {
                     case VideoCodecInfo.VALUE_BASE_LINE:
                         format.setInteger(VideoCodecInfo.H264_PROFILE, PROFILE_BASELINE);
@@ -212,7 +218,7 @@ class HardwareVideoEncoder implements VideoEncoder {
                         ELog.w(TAG, "Unknown profile: " + profile);
                 }
             }
-            ELog.d(TAG, "Format: " + format);
+            ELog.d(TAG, " video Format: " + format);
 
             codec.configure(
                     format, null /* surface */, null /* crypto */, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -222,7 +228,9 @@ class HardwareVideoEncoder implements VideoEncoder {
             mEglCore.createSurface(textureInputSurface);
             mEglCore.makeCurrent();
 
+            ELog.d(TAG, " codec.start(): ");
             codec.start();
+
         } catch (IllegalStateException e) {
             ELog.e(TAG, "initEncodeInternal failed", e);
             release();
@@ -238,6 +246,7 @@ class HardwareVideoEncoder implements VideoEncoder {
 
     @Override
     public VideoCodecStatus encode(VideoFrame videoFrame) {
+        ELog.d(TAG, "encode frame" + videoFrame.getTimestampNs());
         encodeThreadChecker.checkIsOnValidThread();
         if (codec == null) {
             return VideoCodecStatus.UNINITIALIZED;
@@ -285,8 +294,8 @@ class HardwareVideoEncoder implements VideoEncoder {
 
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
             // 没有必要去释放这个frame，因为它没有buffer数据.
-            VideoFrame derotatedFrame = new VideoFrame(videoFrame.getBuffer(), 0, videoFrame.getTimestampNs());
-            videoFrameDrawer.drawFrame(derotatedFrame, textureDrawer, null);
+            VideoFrame deRotatedFrame = new VideoFrame(videoFrame.getBuffer(), 0, videoFrame.getTimestampNs());
+            videoFrameDrawer.drawFrame(deRotatedFrame, textureDrawer, null);
             mEglCore.swapBuffers(videoFrame.getTimestampNs());
 
         } catch (RuntimeException e) {
@@ -305,8 +314,9 @@ class HardwareVideoEncoder implements VideoEncoder {
 
     /**
      * 重置编码器
-     * @param newWidth          newWidth
-     * @param newHeight         newHeight
+     *
+     * @param newWidth  newWidth
+     * @param newHeight newHeight
      * @return
      */
     private VideoCodecStatus resetCodec(int newWidth, int newHeight) {
@@ -336,6 +346,7 @@ class HardwareVideoEncoder implements VideoEncoder {
      * 开启线程从Encoder里不断的读取编码后的h264数据
      */
     protected void deliverEncodedImage() {
+
         //检查线程
         outputThreadChecker.checkIsOnValidThread();
         try {
@@ -378,12 +389,20 @@ class HardwareVideoEncoder implements VideoEncoder {
                     frameBuffer = codecOutputBuffer.slice();
                 }
 
+
                 final EncodedImage.FrameType frameType = isKeyFrame
                         ? EncodedImage.FrameType.VideoFrameKey
                         : EncodedImage.FrameType.VideoFrameDelta;
+
                 EncodedImage.Builder builder = outputBuilders.poll();
-                builder.setBuffer(frameBuffer).setFrameType(frameType);
-                callback.onEncodedFrame(builder.createEncodedImage());
+
+                if (builder == null) return;
+
+                builder.setBuffer(frameBuffer)
+                        .setFrameType(frameType);
+                if (callback != null) {
+                    callback.onEncodedFrame(builder.createEncodedImage());
+                }
             }
 
             codec.releaseOutputBuffer(index, false);
@@ -424,7 +443,6 @@ class HardwareVideoEncoder implements VideoEncoder {
             return VideoCodecStatus.ERROR;
         }
     }
-
 
 
     @Override

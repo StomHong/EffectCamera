@@ -22,10 +22,6 @@ public interface VideoEncoder {
         }
     }
 
-    interface VideoEncoderCallback {
-        void onEncodedFrame(EncodedImage frame);
-    }
-
     default boolean isHardwareEncoder() {
         return true;
     }
@@ -39,5 +35,7 @@ public interface VideoEncoder {
 
     VideoCodecStatus release();
 
-
+    interface VideoEncoderCallback {
+        void onEncodedFrame(EncodedImage frame);
+    }
 }
