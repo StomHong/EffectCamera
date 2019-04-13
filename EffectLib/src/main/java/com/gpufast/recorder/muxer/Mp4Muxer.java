@@ -15,7 +15,6 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback {
     public MediaMuxer muxer;
 
     public Mp4Muxer() {
-
     }
 
     @Override
