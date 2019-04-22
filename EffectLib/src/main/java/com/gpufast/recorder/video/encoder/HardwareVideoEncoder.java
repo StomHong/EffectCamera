@@ -256,6 +256,7 @@ class HardwareVideoEncoder implements VideoEncoder {
         final int frameWidth = videoFrame.getBuffer().getWidth();
         final int frameHeight = videoFrame.getBuffer().getHeight();
 
+        //编码期间宽高发生改变，重置编码器
         if (frameWidth != width || frameHeight != height) {
             VideoCodecStatus status = resetCodec(frameWidth, frameHeight);
             if (status != VideoCodecStatus.OK) {
@@ -263,10 +264,11 @@ class HardwareVideoEncoder implements VideoEncoder {
             }
         }
 
+
         if (outputBuilders.size() > MAX_ENCODER_Q_SIZE) {
             //编码器中的有太多帧数据，需要丢掉该帧
             ELog.e(TAG, "Dropped frame, encoder queue full");
-            return VideoCodecStatus.NO_OUTPUT; // See webrtc bug 2887.
+            return VideoCodecStatus.NO_OUTPUT;
         }
 
 
@@ -390,6 +392,7 @@ class HardwareVideoEncoder implements VideoEncoder {
                 }
 
 
+
                 final EncodedImage.FrameType frameType = isKeyFrame
                         ? EncodedImage.FrameType.VideoFrameKey
                         : EncodedImage.FrameType.VideoFrameDelta;
@@ -397,6 +400,8 @@ class HardwareVideoEncoder implements VideoEncoder {
                 EncodedImage.Builder builder = outputBuilders.poll();
 
                 if (builder == null) return;
+
+                ELog.e("sivin","info timeStamp:"+info.presentationTimeUs);
 
                 builder.setBuffer(frameBuffer)
                         .setFrameType(frameType);

@@ -21,7 +21,6 @@ public class EffectRecorder implements IRecorder {
     private VideoCodecInfo videoCodecInfo;
     private VideoEncoder.VideoSettings videoSettings;
     private VideoClient mVideoClient;
-
     private Mp4Muxer mMp4Muxer;
 
     //开始码率
@@ -30,8 +29,7 @@ public class EffectRecorder implements IRecorder {
     public final int maxFrameRate = 30;
 
 
-    EffectRecorder() {
-    }
+    EffectRecorder() {}
 
 
     @Override
@@ -103,7 +101,6 @@ public class EffectRecorder implements IRecorder {
         if (mVideoClient != null && recorderStarted) {
             mVideoClient.sendVideoFrame(textureId, srcWidth, srcHeight, timeStamp);
         }
-
     }
 
     @Override

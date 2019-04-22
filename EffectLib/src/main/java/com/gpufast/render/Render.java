@@ -6,6 +6,7 @@ import android.opengl.EGLContext;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 import android.view.Surface;
 
 import com.gpufast.effect.filter.CropScaleFilter;
@@ -64,7 +65,6 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
         swTexture.detachFromGLContext();
         swTexture.setOnFrameAvailableListener(this);
 
-
         mRecorder = RecorderFactory.factory();
         mPTime = new PresentationTime(mRecorder.getFps());
     }
@@ -106,6 +106,7 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
             public void onDraw() {
                 swTexture.updateTexImage();
                 swTexture.getTransformMatrix(textureMatrix);
+
                 mPTime.record();
                 int srcRgbId = mOesToRgbFilter.drawTexture(textures[0], textureMatrix);
                 int newTexId = 0;
@@ -116,7 +117,10 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                     newTexId = srcRgbId;
                 }
 
-                mRecorder.sendVideoFrame(newTexId,srcTexWidth,srcTexHeight,mPTime.presentationTimeUs);
+                if (mRecorder != null) {
+                    mRecorder.sendVideoFrame(newTexId, srcTexWidth, srcTexHeight, mPTime.presentationTimeUs);
+                }
+                Log.d(TAG, "onDraw: "+mPTime.presentationTimeUs);
 
                 //屏幕适配
                 int aniTextureId = mScaleFilter.drawTexture(newTexId);
