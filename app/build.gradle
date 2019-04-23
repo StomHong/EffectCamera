@@ -27,7 +27,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation rootProject.ext.supportv7
+    implementation rootProject.ext.support_appcompat
     implementation rootProject.ext.rxPermission
     implementation rootProject.ext.rxJava
     implementation project(':effectlib')
