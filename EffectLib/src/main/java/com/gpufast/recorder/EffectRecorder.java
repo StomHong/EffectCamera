@@ -83,7 +83,7 @@ public class EffectRecorder implements IRecorder {
                 ELog.e(TAG, "can't create video encoder");
                 return;
             }
-            mMp4Muxer = new Mp4Muxer();
+            mMp4Muxer = new Mp4Muxer("");
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
         }

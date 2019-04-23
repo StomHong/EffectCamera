@@ -55,24 +55,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @SuppressLint("CheckResult")
     private void startCameraActivity() {
         grantNum = 0;
-        rxPermissions.requestEach(Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ).subscribe(permission -> {
-            if (permission.granted) {
-                ELog.i(TAG, "permission granted:" + permission.name);
-                grantNum++;
-                if (grantNum == 3) {
-                    ELog.i(TAG, "all permission is granted:");
-                    Intent intent = new Intent(MainActivity.this, RecorderActivity.class);
-                    startActivity(intent);
-                }
-            } else if (permission.shouldShowRequestPermissionRationale) {
-
-            } else {
-
-            }
-        });
+        rxPermissions.request(Manifest.permission.CAMERA).
+//        rxPermissions.requestEach(Manifest.permission.CAMERA,
+//                Manifest.permission.READ_EXTERNAL_STORAGE,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE
+//        ).subscribe(permission -> {
+//            if (permission.granted) {
+//                ELog.i(TAG, "permission granted:" + permission.name);
+//                grantNum++;
+//                if (grantNum == 3) {
+//                    ELog.i(TAG, "all permission is granted:");
+//                    Intent intent = new Intent(MainActivity.this, RecorderActivity.class);
+//                    startActivity(intent);
+//                }
+//            } else if (permission.shouldShowRequestPermissionRationale) {
+//
+//            } else {
+//
+//            }
+//        });
 
     }
 }

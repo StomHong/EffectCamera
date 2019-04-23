@@ -15,8 +15,12 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback {
     private static final String TAG = MediaMuxer.class.getSimpleName();
     public MediaMuxer mMediaMuxer;
 
-    public Mp4Muxer(String outputPath) throws IOException {
-        mMediaMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+    public Mp4Muxer(String outputPath){
+        try {
+            mMediaMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
