@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.gpufast.utils.ELog;
 
-import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -38,10 +37,10 @@ class CameraUtils {
                 break;
             }
         }
-        if(resultSize == null){
-            throw new RuntimeException("can not find target size :targetWidth ="+targetWidth);
-        }else{
-            ELog.i(TAG,"find targetSize :width="+resultSize.height +" height="+resultSize.width);
+        if (resultSize == null) {
+            throw new RuntimeException("can not find target size :targetWidth =" + targetWidth);
+        } else {
+            ELog.i(TAG, "find targetSize :width=" + resultSize.height + " height=" + resultSize.width);
         }
 
         return resultSize;
@@ -71,6 +70,25 @@ class CameraUtils {
         } else {
             return false;
         }
+    }
+
+    static int[] choosePreviewFpsRange(Camera.Parameters parameters) {
+        int[] range = new int[2];
+        parameters.getPreviewFpsRange(range);
+        ELog.d("preview fps range === ", "mix = " + range[0] + "; max = " + range[1]);
+
+        int[] bestRange = new int[2];
+        bestRange[0] = range[1];
+        bestRange[1] = range[1];
+        List<int[]> previewFpsRanges = parameters.getSupportedPreviewFpsRange();
+        for (int i = previewFpsRanges.size() - 1; i > 0; i--) {
+            ELog.d(TAG, "support preview fps range === { " + previewFpsRanges.get(i)[0] + " , " + previewFpsRanges.get(i)[1] + " }");
+            if (previewFpsRanges.get(i)[1] == range[1] && previewFpsRanges.get(i)[0] > 24000 && previewFpsRanges.get(i)[0] < bestRange[0]){
+                 bestRange = previewFpsRanges.get(i);
+            }
+        }
+        ELog.d(TAG, "best preview fps range === { " + bestRange[0] + " , " + bestRange[1] + " }");
+        return bestRange;
     }
 
 }

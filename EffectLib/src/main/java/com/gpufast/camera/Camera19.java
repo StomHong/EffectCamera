@@ -1,6 +1,7 @@
 package com.gpufast.camera;
 
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.Surface;
 
 import com.gpufast.utils.ELog;
@@ -119,7 +120,8 @@ class Camera19 implements ICamera {
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         }
-        parameters.setPreviewFpsRange(24000,30000);
+        int[] range = CameraUtils.choosePreviewFpsRange(parameters);
+        parameters.setPreviewFpsRange(range[0], range[1]);
         mCamera.setParameters(parameters);
     }
 
