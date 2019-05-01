@@ -6,7 +6,7 @@ import android.os.Looper;
 import android.os.Message;
 
 
-public class H264Wirter extends Thread{
+public class H264Writer extends Thread{
 
     private Handler mHandler;
 
