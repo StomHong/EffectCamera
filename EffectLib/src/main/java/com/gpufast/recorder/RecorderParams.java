@@ -63,6 +63,7 @@ public class RecorderParams {
         return hasAudio;
     }
 
+
     public void setHasAudio(boolean hasAudio) {
         this.hasAudio = hasAudio;
     }

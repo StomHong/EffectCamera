@@ -4,7 +4,7 @@ public class RecorderFactory {
 
     private static IRecorder recorder;
 
-    public static IRecorder factory() {
+    public static IRecorder create() {
         if (recorder == null) {
             recorder = new EffectRecorder();
         }

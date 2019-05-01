@@ -65,7 +65,7 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
         swTexture.detachFromGLContext();
         swTexture.setOnFrameAvailableListener(this);
 
-        mRecorder = RecorderFactory.factory();
+        mRecorder = RecorderFactory.create();
         mPTime = new PresentationTime(mRecorder.getFps());
     }
 

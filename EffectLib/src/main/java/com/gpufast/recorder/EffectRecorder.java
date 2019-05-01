@@ -10,7 +10,7 @@ import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
 
-public class EffectRecorder implements IRecorder {
+ class EffectRecorder implements IRecorder {
     private static final String TAG = EffectRecorder.class.getSimpleName();
 
     private volatile boolean recorderStarted = false;
