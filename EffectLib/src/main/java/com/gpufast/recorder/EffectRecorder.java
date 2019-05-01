@@ -10,9 +10,13 @@ import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
 
+
 import java.io.IOException;
 
 public class EffectRecorder implements IRecorder {
+
+ class EffectRecorder implements IRecorder {
+
     private static final String TAG = EffectRecorder.class.getSimpleName();
 
     private volatile boolean recorderStarted = false;
@@ -85,11 +89,15 @@ public class EffectRecorder implements IRecorder {
                 ELog.e(TAG, "can't create video encoder");
                 return;
             }
+
             try {
                 mMp4Muxer = new Mp4Muxer("");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            mMp4Muxer = new Mp4Muxer("");
+
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
         }
