@@ -15,6 +15,7 @@ class MediaCodecUtils {
     static final String INTEL_PREFIX = "OMX.Intel.";   //Intel
     static final String NVIDIA_PREFIX = "OMX.Nvidia.";
     static final String QCOM_PREFIX = "OMX.qcom."; //高通
+    static final String HISI_PREFIX = "OMX.hisi."; //海思处理器
 
     //软件实现的编解码器
     static final String[] SOFTWARE_IMPLEMENTATION_PREFIXES = {"OMX.google.", "OMX.SEC."};

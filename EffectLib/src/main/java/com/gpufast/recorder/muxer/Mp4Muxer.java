@@ -2,41 +2,35 @@ package com.gpufast.recorder.muxer;
 
 import android.media.MediaMuxer;
 
-import com.gpufast.recorder.file.H264Writer;
+import com.gpufast.recorder.file.FileWriter;
 import com.gpufast.recorder.video.EncodedImage;
 import com.gpufast.recorder.video.VideoEncoder;
-import com.gpufast.utils.ELog;
-
-import java.io.IOException;
 
 /**
  * 视频合成接口
  */
 public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback {
-    private static final String TAG = MediaMuxer.class.getSimpleName();
 
-    public H264Writer mH264Wirter;
+    public FileWriter mH264Writer;
     public MediaMuxer mMediaMuxer;
 
-    public Mp4Muxer(String outputPath){
-        try {
-            mMediaMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-            mH264Wirter = new H264Writer();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Mp4Muxer(String outputPath) {
+        mH264Writer = new FileWriter(outputPath);
     }
+
+    public void start(){
+        mH264Writer.startWrite();
+    }
+
+    public void stop(){
+        mH264Writer.stopWrite();
+    }
+
 
     @Override
     public void onEncodedFrame(EncodedImage frame) {
-        ELog.e("sivin", "onEncodedFrame: "+frame.captureTimeNs );
-        if(mH264Wirter != null){
-            byte[] data = frame.buffer.array();
-            byte[] buff = new byte[data.length+1];
-            System.arraycopy(data,0,buff,0,data.length);
-            mH264Wirter.write(buff);
+        if (mH264Writer != null) {
+            mH264Writer.writeToFile(frame.buffer);
         }
-
-
     }
 }

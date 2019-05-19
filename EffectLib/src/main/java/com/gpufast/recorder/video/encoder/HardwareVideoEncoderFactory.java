@@ -16,6 +16,7 @@ import java.util.List;
 
 
 import static com.gpufast.recorder.video.encoder.MediaCodecUtils.EXYNOS_PREFIX;
+import static com.gpufast.recorder.video.encoder.MediaCodecUtils.HISI_PREFIX;
 import static com.gpufast.recorder.video.encoder.MediaCodecUtils.QCOM_PREFIX;
 
 public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
@@ -43,7 +44,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         String codecName = info.getName();
         String mime = type.mimeType();
 
-        ELog.d(TAG,"codecName :"+codecName +" mime:"+mime);
+        ELog.d(TAG, "codecName :" + codecName + " mime:" + mime);
 
         Integer surfaceColorFormat = MediaCodecUtils.selectColorFormat(
                 MediaCodecUtils.TEXTURE_COLOR_FORMATS, info.getCapabilitiesForType(mime));
@@ -124,9 +125,17 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
             return false;
         }
         String name = info.getName();
-        return (name.startsWith(QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                || (name.startsWith(EXYNOS_PREFIX)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+
+        if (name.startsWith(QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return true;
+        }
+
+        if ((name.startsWith(EXYNOS_PREFIX) || (name.startsWith(HISI_PREFIX))
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+            return true;
+        }
+
+        return false;
     }
 
 

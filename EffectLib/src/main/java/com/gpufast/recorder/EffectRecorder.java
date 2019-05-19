@@ -23,6 +23,7 @@ import com.gpufast.utils.ELog;
     private VideoClient mVideoClient;
     private Mp4Muxer mMp4Muxer;
 
+
     //开始码率
     public final int startBitrate = 4000; // Kilobits per second.
     //帧率
@@ -36,6 +37,7 @@ import com.gpufast.utils.ELog;
     public void setParams(RecorderParams params) {
 
         if (params == null) return;
+
 
         videoSettings = new VideoEncoder.VideoSettings(params.getVideoWidth(),
                 params.getVideoHeight(), startBitrate, maxFrameRate);
@@ -57,6 +59,8 @@ import com.gpufast.utils.ELog;
                 ELog.e(TAG, "can't find a available codec :");
             }
         }
+
+        mMp4Muxer = new Mp4Muxer(params.getVideoPath());
     }
 
     @Override
@@ -83,7 +87,10 @@ import com.gpufast.utils.ELog;
                 ELog.e(TAG, "can't create video encoder");
                 return;
             }
-            mMp4Muxer = new Mp4Muxer("");
+
+            if(mMp4Muxer != null){
+                mMp4Muxer.start();
+            }
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
         }
@@ -117,7 +124,9 @@ import com.gpufast.utils.ELog;
 
     @Override
     public void stop() {
-
+        if(mMp4Muxer != null){
+            mMp4Muxer.stop();
+        }
     }
 
     @Override

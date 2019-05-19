@@ -246,7 +246,7 @@ class HardwareVideoEncoder implements VideoEncoder {
 
     @Override
     public VideoCodecStatus encode(VideoFrame videoFrame) {
-        ELog.d(TAG, "encode frame" + videoFrame.getTimestampNs());
+//        ELog.d(TAG, "encode frame" + videoFrame.getTimestampNs());
         encodeThreadChecker.checkIsOnValidThread();
         if (codec == null) {
             return VideoCodecStatus.UNINITIALIZED;
@@ -392,7 +392,6 @@ class HardwareVideoEncoder implements VideoEncoder {
                 }
 
 
-
                 final EncodedImage.FrameType frameType = isKeyFrame
                         ? EncodedImage.FrameType.VideoFrameKey
                         : EncodedImage.FrameType.VideoFrameDelta;
@@ -400,8 +399,6 @@ class HardwareVideoEncoder implements VideoEncoder {
                 EncodedImage.Builder builder = outputBuilders.poll();
 
                 if (builder == null) return;
-
-                ELog.e("sivin","info timeStamp:"+info.presentationTimeUs);
 
                 builder.setBuffer(frameBuffer)
                         .setFrameType(frameType);

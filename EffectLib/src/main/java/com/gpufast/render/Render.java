@@ -120,7 +120,7 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 if (mRecorder != null) {
                     mRecorder.sendVideoFrame(newTexId, srcTexWidth, srcTexHeight, mPTime.presentationTimeUs);
                 }
-                Log.d(TAG, "onDraw: "+mPTime.presentationTimeUs);
+//                Log.d(TAG, "onDraw: "+mPTime.presentationTimeUs);
 
                 //屏幕适配
                 int aniTextureId = mScaleFilter.drawTexture(newTexId);
