@@ -29,27 +29,27 @@ class MediaCodecUtils {
     static final int COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m = 0x7FA30C04;
 
     // Color formats supported by hardware decoder - in order of preference.
-    static final int[] DECODER_COLOR_FORMATS = new int[]{
-            CodecCapabilities.COLOR_FormatYUV420Planar,
-            CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
-            CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar,
-            MediaCodecUtils.COLOR_QCOM_FORMATYVU420PackedSemiPlanar32m4ka,
-            MediaCodecUtils.COLOR_QCOM_FORMATYVU420PackedSemiPlanar16m4ka,
-            MediaCodecUtils.COLOR_QCOM_FORMATYVU420PackedSemiPlanar64x32Tile2m8ka,
-            MediaCodecUtils.COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m};
+    static final int[] DECODER_COLOR_FORMATS = new int[] {
+        CodecCapabilities.COLOR_FormatYUV420Planar,
+        CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
+        CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar,
+        MediaCodecUtils.COLOR_QCOM_FORMATYVU420PackedSemiPlanar32m4ka,
+        MediaCodecUtils.COLOR_QCOM_FORMATYVU420PackedSemiPlanar16m4ka,
+        MediaCodecUtils.COLOR_QCOM_FORMATYVU420PackedSemiPlanar64x32Tile2m8ka,
+        MediaCodecUtils.COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m};
 
     // Color formats supported by hardware encoder - in order of preference.
     static final int[] ENCODER_COLOR_FORMATS = {
-            CodecCapabilities.COLOR_FormatYUV420Planar,
-            CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
-            CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar,
-            MediaCodecUtils.COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m};
+        CodecCapabilities.COLOR_FormatYUV420Planar,
+        CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
+        CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar,
+        MediaCodecUtils.COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m};
 
     // Color formats supported by texture mode encoding - in order of preference.
     static final int[] TEXTURE_COLOR_FORMATS = getTextureColorFormats();
 
     private static int[] getTextureColorFormats() {
-        return new int[]{CodecCapabilities.COLOR_FormatSurface};
+        return new int[] {CodecCapabilities.COLOR_FormatSurface};
     }
 
     static Integer selectColorFormat(int[] supportedColorFormats, CodecCapabilities capabilities) {
@@ -71,7 +71,6 @@ class MediaCodecUtils {
         }
         return false;
     }
-
 
     private MediaCodecUtils() {
     }

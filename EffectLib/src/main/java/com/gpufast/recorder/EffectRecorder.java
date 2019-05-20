@@ -29,7 +29,6 @@ import com.gpufast.utils.ELog;
     //帧率
     public final int maxFrameRate = 30;
 
-
     EffectRecorder() {}
 
 
