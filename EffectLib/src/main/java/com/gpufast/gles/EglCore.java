@@ -21,6 +21,7 @@ import javax.microedition.khronos.egl.EGL10;
  * Holds EGL state and utility methods for handling an egl 1.0 EGLContext, an EGLDisplay,
  * and an EGLSurface.
  */
+@SuppressWarnings("unused")
 public interface EglCore {
 
     //根据文档，如果每一个线程都拥有自己的EGLContext对象，则EGL能用于多线程中，

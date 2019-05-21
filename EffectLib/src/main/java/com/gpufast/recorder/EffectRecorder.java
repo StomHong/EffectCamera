@@ -10,7 +10,7 @@ import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
 
- class EffectRecorder implements IRecorder {
+class EffectRecorder implements IRecorder {
     private static final String TAG = EffectRecorder.class.getSimpleName();
 
     private volatile boolean recorderStarted = false;
@@ -23,23 +23,22 @@ import com.gpufast.utils.ELog;
     private VideoClient mVideoClient;
     private Mp4Muxer mMp4Muxer;
 
-
     //开始码率
     public final int startBitrate = 4000; // Kilobits per second.
     //帧率
     public final int maxFrameRate = 30;
 
-    EffectRecorder() {}
-
+    EffectRecorder() {
+    }
 
     @Override
     public void setParams(RecorderParams params) {
 
-        if (params == null) return;
-
+        if (params == null)
+            return;
 
         videoSettings = new VideoEncoder.VideoSettings(params.getVideoWidth(),
-                params.getVideoHeight(), startBitrate, maxFrameRate);
+                                                       params.getVideoHeight(), startBitrate, maxFrameRate);
 
         if (params.isHwEncoder()) {
             videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
@@ -77,7 +76,8 @@ import com.gpufast.utils.ELog;
 
     @Override
     public void startRecorder() {
-        if (recorderStarted) return;
+        if (recorderStarted)
+            return;
         recorderStarted = true;
         ELog.d(TAG, "videoEncoderFactory != null ?--->" + (videoEncoderFactory != null));
         if (videoEncoderFactory != null) {
@@ -87,7 +87,7 @@ import com.gpufast.utils.ELog;
                 return;
             }
 
-            if(mMp4Muxer != null){
+            if (mMp4Muxer != null) {
                 mMp4Muxer.start();
             }
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
@@ -95,12 +95,10 @@ import com.gpufast.utils.ELog;
         }
     }
 
-
     @Override
     public void stitchVideo() {
 
     }
-
 
     @Override
     public void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp) {
@@ -114,18 +112,24 @@ import com.gpufast.utils.ELog;
         return maxFrameRate;
     }
 
-
     @Override
     public void stopRecorder() {
-
+        if (mMp4Muxer != null) {
+            mMp4Muxer.stop();
+        }
+        if (mVideoClient != null) {
+            mVideoClient.stop();
+        }
     }
 
+    @Override
+    public void setRecorderListener(RecorderListener listener) {
+        //TODO:设置录制监听器
+    }
 
     @Override
     public void stop() {
-        if(mMp4Muxer != null){
-            mMp4Muxer.stop();
-        }
+        stopRecorder();
     }
 
     @Override

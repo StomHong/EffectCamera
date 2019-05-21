@@ -1,6 +1,6 @@
 package com.gpufast.recorder;
 
-public class RecorderFactory {
+public class RecorderEngine {
 
     private static IRecorder recorder;
 
