@@ -4,19 +4,16 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.opengl.EGLContext;
 import android.os.Build;
-
-import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.VideoEncoder;
-import com.gpufast.recorder.video.btadjuster.BaseBitrateAdjuster;
+import com.gpufast.recorder.video.VideoEncoderFactory;
+import com.gpufast.recorder.video.btadjuster.FrameRateBitrateAdjuster;
 import com.gpufast.utils.ELog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-import static com.gpufast.recorder.video.encoder.MediaCodecUtils.EXYNOS_PREFIX;
-import static com.gpufast.recorder.video.encoder.MediaCodecUtils.QCOM_PREFIX;
+import static com.gpufast.recorder.video.encoder.MediaCodecUtils.*;
 
 public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
@@ -43,14 +40,14 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         String codecName = info.getName();
         String mime = type.mimeType();
 
-        ELog.d(TAG,"codecName :"+codecName +" mime:"+mime);
+        ELog.d(TAG, "codecName :" + codecName + " mime:" + mime);
 
         Integer surfaceColorFormat = MediaCodecUtils.selectColorFormat(
                 MediaCodecUtils.TEXTURE_COLOR_FORMATS, info.getCapabilitiesForType(mime));
 
         return new HardwareVideoEncoder(new MediaCodecWrapperFactoryImpl(), codecName, type,
                 surfaceColorFormat, inputCodecInfo.params, getKeyFrameIntervalSec(type),
-                new BaseBitrateAdjuster(),
+                new FrameRateBitrateAdjuster(),
                 sharedContext);
     }
 
@@ -58,8 +55,8 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
     /**
      * 获取编码器的关键帧间隔
      *
-     * @param type
-     * @return
+     * @param type type
+     * @return KeyFrameIntervalSec 每个多少每秒一个关键帧
      */
     private int getKeyFrameIntervalSec(VideoCodecType type) {
         switch (type) {
@@ -124,9 +121,17 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
             return false;
         }
         String name = info.getName();
-        return (name.startsWith(QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                || (name.startsWith(EXYNOS_PREFIX)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+
+        if (name.startsWith(QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return true;
+        }
+
+        if ((name.startsWith(EXYNOS_PREFIX) || (name.startsWith(HISI_PREFIX))
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+            return true;
+        }
+
+        return false;
     }
 
 

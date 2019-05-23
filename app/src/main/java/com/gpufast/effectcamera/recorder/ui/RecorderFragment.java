@@ -1,5 +1,6 @@
 package com.gpufast.effectcamera.recorder.ui;
 
+import android.os.Environment;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,7 +16,7 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
     private SurfaceView mPreview;
     private RecorderPresenter mPresenter;
     private ImageView mSwitchCameraBtn;
-    private ImageView mStartRecoderBtn;
+    private ImageView mStartRecorderBtn;
 
 
     @Override
@@ -28,8 +29,8 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
         mPreview = findViewById(R.id.id_camera_preview);
         mSwitchCameraBtn = findViewById(R.id.id_switch_camera);
         mSwitchCameraBtn.setOnClickListener(this);
-        mStartRecoderBtn = findViewById(R.id.id_start_recorder_btn);
-        mStartRecoderBtn.setOnClickListener(this);
+        mStartRecorderBtn = findViewById(R.id.id_start_recorder_btn);
+        mStartRecorderBtn.setOnClickListener(this);
         mPresenter = new RecorderPresenter();
 
         initRecorderParams();
@@ -41,14 +42,14 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
 
     private void initRecorderParams() {
 
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+
         RecorderParams params = new RecorderParams();
         params.setVideoWidth(720);
         params.setVideoHeight(1280);
         params.setHwEncoder(true);
-
+        params.setVideoPath(path+"/a_test/test.h264");
         mPresenter.setRecorderParameter(params);
-
-
 
     }
 

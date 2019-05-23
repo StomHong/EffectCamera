@@ -39,6 +39,9 @@ public class VideoClient {
         }
     }
 
+    public void stop() {
+        mEncoderThread.getHandler().sendToStop();
+    }
 
     private static class EncoderThread extends Thread {
         private static final String TAG = EncoderThread.class.getSimpleName();
@@ -58,11 +61,11 @@ public class VideoClient {
             mCallback = callback;
         }
 
-        public boolean isReady() {
+        boolean isReady() {
             return mReady;
         }
 
-        public EncoderHandler getHandler() {
+        EncoderHandler getHandler() {
             return mEncoderHandler;
         }
 
@@ -94,7 +97,7 @@ public class VideoClient {
             }
         }
 
-        public void sendVideoFrame(VideoFrame frame) {
+        void sendVideoFrame(VideoFrame frame) {
             if (mVideoEncoder != null && mReady) {
                 mVideoEncoder.encode(frame);
             }
@@ -112,7 +115,8 @@ public class VideoClient {
 
     private static class EncoderHandler extends Handler {
         private static final String TAG = EncoderHandler.class.getSimpleName();
-        public static final int ON_FRAME_AVAILABLE = 0x001;
+        private static final int ON_FRAME_AVAILABLE = 0x001;
+        private static final int ON_STOP = 0x002;
 
         private WeakReference<VideoClient.EncoderThread> mWeakEncoderThread;
 
@@ -125,6 +129,9 @@ public class VideoClient {
             sendMessage(obtainMessage(ON_FRAME_AVAILABLE, frame));
         }
 
+        private void sendToStop() {
+            sendMessage(obtainMessage(ON_STOP));
+        }
 
         @Override
         public void handleMessage(Message msg) {
@@ -136,7 +143,10 @@ public class VideoClient {
             }
             switch (msg.what) {
                 case ON_FRAME_AVAILABLE:
-                    encoderThread.sendVideoFrame((VideoFrame) msg.obj);
+                    encoderThread.sendVideoFrame((VideoFrame)msg.obj);
+                    break;
+                case ON_STOP:
+                    encoderThread.shutdown();
                     break;
             }
         }

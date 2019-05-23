@@ -3,12 +3,9 @@ package com.gpufast.camera;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.Surface;
-
 import com.gpufast.utils.ELog;
-
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @author Sivin 2018/10/26
@@ -110,18 +107,26 @@ class Camera19 implements ICamera {
     private void setCameraParameter() {
         if (mCamera == null) return;
         Camera.Parameters parameters = mCamera.getParameters();
+
+
         //获取支持的预览尺寸
         List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
         Camera.Size preViewSize = CameraUtils.chooseOptimalSize(supportedPreviewSizes,
                 mParams.getWidth(), mParams.getHeight());
         parameters.setPreviewSize(preViewSize.width, preViewSize.height);
+
         // 设置摄像头为自动聚焦
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         }
-        int[] range = CameraUtils.choosePreviewFpsRange(parameters);
-        parameters.setPreviewFpsRange(range[0], range[1]);
+        List<int[]> supportedPreviewFpsRange = parameters.getSupportedPreviewFpsRange();
+
+        int[] fps = CameraUtils.chooseOptimalFps(supportedPreviewFpsRange, 25, 30);
+        if(fps != null){
+            ELog.d(Camera19.class,"fpsRange->min:"+fps[0]+" max:"+fps[1]);
+            parameters.setPreviewFpsRange(fps[0],fps[1]);
+        }
         mCamera.setParameters(parameters);
     }
 

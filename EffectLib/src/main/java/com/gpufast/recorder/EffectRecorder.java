@@ -9,13 +9,9 @@ import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
-
-
 import java.io.IOException;
 
 public class EffectRecorder implements IRecorder {
-
- class EffectRecorder implements IRecorder {
 
     private static final String TAG = EffectRecorder.class.getSimpleName();
 
@@ -34,17 +30,17 @@ public class EffectRecorder implements IRecorder {
     //帧率
     public final int maxFrameRate = 30;
 
-
-    EffectRecorder() {}
-
+    EffectRecorder() {
+    }
 
     @Override
     public void setParams(RecorderParams params) {
 
-        if (params == null) return;
+        if (params == null)
+            return;
 
         videoSettings = new VideoEncoder.VideoSettings(params.getVideoWidth(),
-                params.getVideoHeight(), startBitrate, maxFrameRate);
+                                                       params.getVideoHeight(), startBitrate, maxFrameRate);
 
         if (params.isHwEncoder()) {
             videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
@@ -63,6 +59,8 @@ public class EffectRecorder implements IRecorder {
                 ELog.e(TAG, "can't find a available codec :");
             }
         }
+
+        mMp4Muxer = new Mp4Muxer(params.getVideoPath());
     }
 
     @Override
@@ -80,7 +78,8 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public void startRecorder() {
-        if (recorderStarted) return;
+        if (recorderStarted)
+            return;
         recorderStarted = true;
         ELog.d(TAG, "videoEncoderFactory != null ?--->" + (videoEncoderFactory != null));
         if (videoEncoderFactory != null) {
@@ -90,25 +89,26 @@ public class EffectRecorder implements IRecorder {
                 return;
             }
 
+
             try {
                 mMp4Muxer = new Mp4Muxer("");
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            mMp4Muxer = new Mp4Muxer("");
+            if (mMp4Muxer != null) {
+                mMp4Muxer.start();
+            }
 
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
         }
     }
 
-
     @Override
     public void stitchVideo() {
 
     }
-
 
     @Override
     public void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp) {
@@ -122,16 +122,24 @@ public class EffectRecorder implements IRecorder {
         return maxFrameRate;
     }
 
-
     @Override
     public void stopRecorder() {
-
+        if (mMp4Muxer != null) {
+            mMp4Muxer.stop();
+        }
+        if (mVideoClient != null) {
+            mVideoClient.stop();
+        }
     }
 
+    @Override
+    public void setRecorderListener(RecorderListener listener) {
+        //TODO:设置录制监听器
+    }
 
     @Override
     public void stop() {
-
+        stopRecorder();
     }
 
     @Override

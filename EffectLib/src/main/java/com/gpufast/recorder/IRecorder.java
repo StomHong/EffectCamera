@@ -17,17 +17,24 @@ public interface IRecorder {
 
     void startRecorder();
 
-
     void stitchVideo();
 
     void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp);
 
     int getFps();
 
-
     void stopRecorder();
+
+    void setRecorderListener(RecorderListener listener);
 
     void stop();
 
     void release();
+
+    public interface RecorderListener {
+
+        void onRecoderStart();
+
+        void onRecoderStop();
+    }
 }
