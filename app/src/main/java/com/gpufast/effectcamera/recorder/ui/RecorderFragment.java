@@ -48,7 +48,7 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
         params.setVideoWidth(720);
         params.setVideoHeight(1280);
         params.setHwEncoder(true);
-        params.setVideoPath(path+"/a_test/test.h264");
+        params.setSavePath(path+"/a_test/test.h264");
         mPresenter.setRecorderParameter(params);
 
     }

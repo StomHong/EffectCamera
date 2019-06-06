@@ -138,7 +138,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     }
 
     @Override
-    public VideoCodecStatus initEncoder(VideoSettings settings, VideoEncoderCallback callback) {
+    public VideoCodecStatus initEncoder(Settings settings, VideoEncoderCallback callback) {
         encodeThreadChecker.checkIsOnValidThread();
         this.callback = callback;
         this.width = settings.width;
@@ -176,9 +176,9 @@ class HardwareVideoEncoder implements VideoEncoder {
             //配置颜色格式
             format.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
             //配置帧率
-            format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
+            format.setInteger(MediaFormat.KEY_FRAME_RATE, 25);
             //配置关键帧间隔
-            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 5);
+            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2);
 
             //配置H264 profile 和level
             if (codecType == VideoCodecType.H264) {

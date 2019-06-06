@@ -15,7 +15,7 @@ public class VideoClient {
     private EncoderThread mEncoderThread;
 
     public VideoClient(VideoEncoder encoder,
-                       VideoEncoder.VideoSettings settings,
+                       VideoEncoder.Settings settings,
                        VideoEncoder.VideoEncoderCallback callback) {
         mEncoderThread = new EncoderThread(encoder, settings, callback);
     }
@@ -51,10 +51,10 @@ public class VideoClient {
 
 
         private VideoEncoder mVideoEncoder;
-        private VideoEncoder.VideoSettings mSettings;
+        private VideoEncoder.Settings mSettings;
         VideoEncoder.VideoEncoderCallback mCallback;
 
-        EncoderThread(VideoEncoder encoder, VideoEncoder.VideoSettings settings,
+        EncoderThread(VideoEncoder encoder, VideoEncoder.Settings settings,
                       VideoEncoder.VideoEncoderCallback callback) {
             mVideoEncoder = encoder;
             mSettings = settings;

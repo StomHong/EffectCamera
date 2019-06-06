@@ -19,7 +19,7 @@ class EffectRecorder implements IRecorder {
 
     private VideoEncoderFactory videoEncoderFactory;
     private VideoCodecInfo videoCodecInfo;
-    private VideoEncoder.VideoSettings videoSettings;
+    private VideoEncoder.Settings videoSettings;
     private VideoClient mVideoClient;
     private Mp4Muxer mMp4Muxer;
 
@@ -33,32 +33,40 @@ class EffectRecorder implements IRecorder {
 
     @Override
     public void setParams(RecorderParams params) {
-
-        if (params == null)
+        if (params == null) {
             return;
-
-        videoSettings = new VideoEncoder.VideoSettings(params.getVideoWidth(),
-                                                       params.getVideoHeight(), startBitrate, maxFrameRate);
-
-        if (params.isHwEncoder()) {
-            videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
-        }
-        if (videoEncoderFactory != null) {
-
-            if (shareContext != null) {
-                videoEncoderFactory.setShareContext(shareContext);
-            }
-
-            VideoCodecInfo[] supportedCodecs = videoEncoderFactory.getSupportedCodecs();
-            if (supportedCodecs != null && supportedCodecs.length > 0) {
-                videoCodecInfo = supportedCodecs[0];
-                ELog.d(TAG, "find a codec :" + videoCodecInfo.name);
-            } else {
-                ELog.e(TAG, "can't find a available codec :");
-            }
         }
 
-        mMp4Muxer = new Mp4Muxer(params.getVideoPath());
+        if(params.isEnableVideo()){
+            //get video encoder params
+            videoSettings = new VideoEncoder.Settings(params.getVideoWidth(),
+                    params.getVideoHeight(), startBitrate, maxFrameRate);
+
+            if (params.isHwEncoder()) {
+                videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
+            }else{
+                videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.SW_VIDEO_ENCODER);
+            }
+
+            if (videoEncoderFactory != null) {
+                if (shareContext != null) {
+                    videoEncoderFactory.setShareContext(shareContext);
+                }
+                VideoCodecInfo[] supportedCodecs = videoEncoderFactory.getSupportedCodecs();
+                if (supportedCodecs != null && supportedCodecs.length > 0) {
+                    videoCodecInfo = supportedCodecs[0];
+                    ELog.d(TAG, "find a codec :" + videoCodecInfo.name);
+                } else {
+                    ELog.e(TAG, "can't find a available codec :");
+                }
+            }
+        }
+
+
+
+
+
+        mMp4Muxer = new Mp4Muxer(params.getSavePath());
     }
 
     @Override

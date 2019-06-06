@@ -14,6 +14,9 @@ class EncoderFactory {
         switch (type){
             case HW_VIDEO_ENCODER:
                 return new HardwareVideoEncoderFactory();
+            case SW_VIDEO_ENCODER:
+                //TODO:编写视频软编码实现
+                return null;
         }
         return null;
     }
