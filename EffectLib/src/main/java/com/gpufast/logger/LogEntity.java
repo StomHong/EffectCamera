@@ -45,8 +45,8 @@ public class LogEntity {
         isDebugMode = info != null && (info.flags & FLAG_DEBUGGABLE) != 0;
         try {
             logDir = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + LOG_DIR;
-        } catch (Exception var5) {
-            FwLog.write(1, "L-crash_main_ept-E", FwLog.stackToString(var5));
+        } catch (Exception e) {
+            FwLog.write(ELog.ERROR_LEVEL, "L-crash_main_ept-E", FwLog.stackToString(e));
         }
     }
 
@@ -91,9 +91,6 @@ public class LogEntity {
     }
 
     void setMonitorLevel(int level) {
-        if (getLogMode() == 2) {
-            monitorLevel = 6;
-        }
         sharedPreferences.edit().putInt(MONITOR_LEVEL, level).apply();
         monitorLevel = level;
     }
