@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference;
 class LogWriter {
     private static final String LOG_WRITE_THREAD_NAME = "com.gpufast.loggerWriter";
     private static final String LOG_FILENAME = "effect_sdk.log";
-    public static LogWriter instance;
+    private static LogWriter instance;
     private WriterThread mWriterThread;
 
     private LogWriter() {
