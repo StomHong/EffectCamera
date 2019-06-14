@@ -20,8 +20,8 @@ class FwLogImp {
         if (instance == null) {
             sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS", Locale.US);
             sdf.setTimeZone(TimeZone.getTimeZone("gmt"));
-            logWriter = LogWriter.getInstance();
             LogEntity.init(context);
+            logWriter = LogWriter.getInstance();
             instance = new FwLogImp();
         }
 
