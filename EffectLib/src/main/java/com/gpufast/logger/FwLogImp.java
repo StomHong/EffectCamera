@@ -35,7 +35,7 @@ class FwLogImp {
         LogEntity.getInstance().setConsoleLogLevel(level);
     }
 
-    void setMonitorLevel(int level){
+    void setMonitorLevel(int level) {
         LogEntity.getInstance().setMonitorLevel(level);
     }
 
@@ -44,12 +44,11 @@ class FwLogImp {
             if (level <= LogEntity.getInstance().getConsoleLogLevel()) {
                 showConsoleLog(level, tag, msg);
             }
-
-            if (level <= LogEntity.getInstance().getMonitorLevel()) {
-                String gmtTime = sdf.format(new Date(timestamp));
-                final String logStr = gmtTime + " " + tid + " " + levelArray.get(level) + " [" + tag + "] msg:" + msg;
-                logWriter.writer(logStr);
-            }
+        }
+        if (level <= LogEntity.getInstance().getMonitorLevel()) {
+            String gmtTime = sdf.format(new Date(timestamp));
+            final String logStr = gmtTime + " " + tid + " " + levelArray.get(level) + " [" + tag + "] msg:" + msg;
+            logWriter.writer(logStr);
         }
     }
 
