@@ -1,5 +1,8 @@
 package com.gpufast.recorder.video;
 
+import android.media.MediaCodec;
+import android.media.MediaFormat;
+
 import com.gpufast.recorder.video.encoder.VideoCodecStatus;
 
 public interface VideoEncoder {
@@ -36,6 +39,6 @@ public interface VideoEncoder {
     VideoCodecStatus release();
 
     interface VideoEncoderCallback {
-        void onEncodedFrame(EncodedImage frame);
+        void onEncodedFrame(EncodedImage frame, MediaCodec.BufferInfo info,MediaFormat format);
     }
 }

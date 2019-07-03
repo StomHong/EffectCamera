@@ -9,7 +9,6 @@ import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
-import java.io.IOException;
 
 public class EffectRecorder implements IRecorder {
 
@@ -24,6 +23,8 @@ public class EffectRecorder implements IRecorder {
     private VideoEncoder.VideoSettings videoSettings;
     private VideoClient mVideoClient;
     private Mp4Muxer mMp4Muxer;
+
+    RecorderListener mRecorderListener;
 
     //开始码率
     public final int startBitrate = 4000; // Kilobits per second.
@@ -89,19 +90,15 @@ public class EffectRecorder implements IRecorder {
                 return;
             }
 
-
-            try {
-                mMp4Muxer = new Mp4Muxer("");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             if (mMp4Muxer != null) {
                 mMp4Muxer.start();
             }
 
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
+        }
+        if (mRecorderListener != null) {
+            mRecorderListener.onRecorderStart();
         }
     }
 
@@ -130,11 +127,14 @@ public class EffectRecorder implements IRecorder {
         if (mVideoClient != null) {
             mVideoClient.stop();
         }
+        if (mRecorderListener != null) {
+            mRecorderListener.onRecorderStop();
+        }
     }
 
     @Override
     public void setRecorderListener(RecorderListener listener) {
-        //TODO:设置录制监听器
+       this.mRecorderListener = listener;
     }
 
     @Override

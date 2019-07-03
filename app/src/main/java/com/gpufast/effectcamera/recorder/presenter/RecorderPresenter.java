@@ -4,7 +4,7 @@ import android.view.SurfaceView;
 
 import com.gpufast.camera.CameraEngine;
 import com.gpufast.effectcamera.recorder.contract.RecorderContract;
-import com.gpufast.recorder.RecorderFactory;
+import com.gpufast.recorder.RecorderEngine;
 import com.gpufast.recorder.RecorderParams;
 import com.gpufast.utils.ELog;
 
@@ -37,17 +37,17 @@ public class RecorderPresenter implements RecorderContract.Presenter {
 
     @Override
     public void setRecorderParameter(RecorderParams params) {
-        RecorderFactory.create().setParams(params);
+        RecorderEngine.create().setParams(params);
     }
 
     @Override
     public void startRecorder() {
-        RecorderFactory.create().startRecorder();
+        RecorderEngine.create().startRecorder();
     }
 
     @Override
     public void stopRecorder() {
-        RecorderFactory.create().stopRecorder();
+        RecorderEngine.create().stopRecorder();
     }
 
     @Override
@@ -55,5 +55,8 @@ public class RecorderPresenter implements RecorderContract.Presenter {
 
     }
 
-
+    @Override
+    public boolean isRecording() {
+        return RecorderEngine.create().isRecording();
+    }
 }

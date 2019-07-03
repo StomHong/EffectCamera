@@ -8,6 +8,10 @@ import android.view.WindowManager;
 
 import com.gpufast.effectcamera.R;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 public class RecorderActivity extends AppCompatActivity {
 
     @Override
@@ -24,6 +28,11 @@ public class RecorderActivity extends AppCompatActivity {
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.id_container,new RecorderFragment());
         ft.commit();
+    }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

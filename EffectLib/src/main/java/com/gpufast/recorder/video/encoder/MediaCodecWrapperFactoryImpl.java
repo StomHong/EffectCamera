@@ -1,5 +1,6 @@
 package com.gpufast.recorder.video.encoder;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
@@ -58,9 +59,9 @@ class MediaCodecWrapperFactoryImpl implements MediaCodecWrapperFactory {
     public int dequeueOutputBuffer(MediaCodec.BufferInfo info, long timeoutUs) {
       return mediaCodec.dequeueOutputBuffer(info, timeoutUs);
     }
-
+    @SuppressLint("NewApi")
     @Override
-    public void releaseOutputBuffer(int index, boolean render) {
+    public void releaseOutputBuffer(int index, long render) {
       mediaCodec.releaseOutputBuffer(index, render);
     }
 

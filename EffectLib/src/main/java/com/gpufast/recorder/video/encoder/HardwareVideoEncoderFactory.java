@@ -148,7 +148,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
                 supportedCodecInfos.add(new VideoCodecInfo(name, VideoCodecInfo.Profile.BASE_LINE));
             }
         }
-        return supportedCodecInfos.toArray(new VideoCodecInfo[supportedCodecInfos.size()]);
+        return supportedCodecInfos.toArray(new VideoCodecInfo[0]);
     }
 
     private boolean isH264HighProfileSupported(MediaCodecInfo info) {

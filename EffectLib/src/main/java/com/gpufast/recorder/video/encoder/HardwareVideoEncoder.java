@@ -36,7 +36,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * Android hardware video encoder.
  */
-@TargetApi(19)
+@TargetApi(18)
 class HardwareVideoEncoder implements VideoEncoder {
 
     private static final String TAG = "HardwareVideoEncoder";
@@ -178,7 +178,7 @@ class HardwareVideoEncoder implements VideoEncoder {
             //配置帧率
             format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
             //配置关键帧间隔
-            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 5);
+            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
 
             //配置H264 profile 和level
             if (codecType == VideoCodecType.H264) {
@@ -382,11 +382,11 @@ class HardwareVideoEncoder implements VideoEncoder {
                 if (callback != null) {
 
                     ELog.d(HardwareVideoEncoder.class, "pts:" + info.presentationTimeUs);
-                    callback.onEncodedFrame(builder.createEncodedImage());
+                    callback.onEncodedFrame(builder.createEncodedImage(),info,codec.getOutputFormat());
                 }
             }
 
-            codec.releaseOutputBuffer(index, false);
+            codec.releaseOutputBuffer(index, info.presentationTimeUs);
         } catch (IllegalStateException e) {
             ELog.e(TAG, "deliverOutput failed", e);
         }

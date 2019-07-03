@@ -31,10 +31,10 @@ public interface IRecorder {
 
     void release();
 
-    public interface RecorderListener {
+    interface RecorderListener {
 
-        void onRecoderStart();
+        void onRecorderStart();
 
-        void onRecoderStop();
+        void onRecorderStop();
     }
 }
