@@ -380,9 +380,10 @@ class HardwareVideoEncoder implements VideoEncoder {
                 builder.setBuffer(frameBuffer)
                     .setFrameType(frameType);
                 if (callback != null) {
-
+                    builder.setMediaFormat(codec.getOutputFormat());
+                    builder.setBufferInfo(info);
                     ELog.d(HardwareVideoEncoder.class, "pts:" + info.presentationTimeUs);
-                    callback.onEncodedFrame(builder.createEncodedImage(),info,codec.getOutputFormat());
+                    callback.onEncodedFrame(builder.createEncodedImage());
                 }
             }
 

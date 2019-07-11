@@ -1,21 +1,20 @@
 package com.gpufast.recorder.audio;
 
-import android.media.MediaCodec;
-import android.media.MediaFormat;
-
-import com.gpufast.recorder.video.EncodedImage;
+import java.io.IOException;
 
 public interface AudioEncoder {
 
-    class AudioSettings {
+    void setAudioCodecType(AudioCodecType type);
 
-    }
+    void prepare() throws IOException;
 
-    public void initEncoder();
+    void startRecording();
 
-    public void encodePcm(byte[] bufferBytes , final int len , final long presentationTimeUs);
+    void pauseRecording();
+
+    void release();
 
     interface AudioEncoderCallback {
-        void onEncodedAudio(EncodedImage frame, MediaCodec.BufferInfo info, MediaFormat format);
+        void onEncodedAudio(EncodedAudio frame);
     }
 }

@@ -90,10 +90,6 @@ public class EffectRecorder implements IRecorder {
                 return;
             }
 
-            if (mMp4Muxer != null) {
-                mMp4Muxer.start();
-            }
-
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
         }
@@ -121,9 +117,6 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public void stopRecorder() {
-        if (mMp4Muxer != null) {
-            mMp4Muxer.stop();
-        }
         if (mVideoClient != null) {
             mVideoClient.stop();
         }

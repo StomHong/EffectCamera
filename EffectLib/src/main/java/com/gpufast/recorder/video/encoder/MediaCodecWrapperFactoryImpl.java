@@ -64,7 +64,6 @@ class MediaCodecWrapperFactoryImpl implements MediaCodecWrapperFactory {
     public void releaseOutputBuffer(int index, long render) {
       mediaCodec.releaseOutputBuffer(index, render);
     }
-
     @Override
     public MediaFormat getOutputFormat() {
       return mediaCodec.getOutputFormat();

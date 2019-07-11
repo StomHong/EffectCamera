@@ -1,4 +1,5 @@
 package com.gpufast.recorder.muxer;
 
-public class MP4MuxerFactory {
+public class Mp4MuxerFactory {
+
 }

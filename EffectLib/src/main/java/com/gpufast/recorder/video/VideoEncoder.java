@@ -39,6 +39,7 @@ public interface VideoEncoder {
     VideoCodecStatus release();
 
     interface VideoEncoderCallback {
-        void onEncodedFrame(EncodedImage frame, MediaCodec.BufferInfo info,MediaFormat format);
+
+        void onEncodedFrame(EncodedImage frame);
     }
 }
