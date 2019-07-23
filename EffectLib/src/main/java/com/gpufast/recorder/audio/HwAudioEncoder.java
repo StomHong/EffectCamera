@@ -7,8 +7,6 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import java.io.IOException;
@@ -23,16 +21,22 @@ public class HwAudioEncoder implements AudioEncoder {
     private MediaCodec mAudioCodec;
 
     private static final int SAMPLE_RATE = 44100;//采样率
-    private static final int BIT_RATE = 96000;//码率 MediaCodecInfo.CodecProfileLevel.AACObjectLC >= 80Kbps
+    private static final int BIT_RATE = 48000;//码率 MediaCodecInfo.CodecProfileLevel.AACObjectLC >= 80Kbps
 
     private AudioRecord mAudioRecord;
     private MediaCodec.BufferInfo mBufferInfo;
-    private static EncoderThread mEncoderThread;
+    private static AudioEncoderThread mAudioEncoderThread;
+    private AudioEncoderCallback callback;
+    private long startTime;
+
+    public HwAudioEncoder(AudioEncoderCallback callback) {
+        this.callback = callback;
+    }
 
     /**
      * 声道数
      */
-    private static final int CHANNEL = 2;
+    private static final int CHANNEL = 1;
 
     @Override
     public void prepare() throws IOException {
@@ -41,8 +45,9 @@ public class HwAudioEncoder implements AudioEncoder {
         format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, CHANNEL);
         format.setInteger(MediaFormat.KEY_SAMPLE_RATE, SAMPLE_RATE);
         format.setString(MediaFormat.KEY_MIME, audioMime.mimeType());
-        format.setInteger(MediaFormat.KEY_CHANNEL_MASK, AudioFormat.CHANNEL_IN_STEREO);
+        format.setInteger(MediaFormat.KEY_CHANNEL_MASK, AudioFormat.CHANNEL_IN_MONO);
         format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+        format.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0);
 
         mAudioCodec = MediaCodec.createEncoderByType(audioMime.mimeType());
         mAudioCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -51,11 +56,15 @@ public class HwAudioEncoder implements AudioEncoder {
         mBufferInfo = new MediaCodec.BufferInfo();
 
         int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
+        if (minBufferSize == AudioRecord.ERROR || minBufferSize == AudioRecord.ERROR_BAD_VALUE) {
+            Log.e("HwAudioEncoder ","AudioRecord.getMinBufferSize failed: " + minBufferSize);
+        }
         mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
+                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
 
+        startTime = System.nanoTime();
     }
 
     @Override
@@ -63,18 +72,17 @@ public class HwAudioEncoder implements AudioEncoder {
         if (mAudioRecord != null) {
             mAudioRecord.startRecording();
         }
-        Looper.prepare();
-        mEncoderThread = new EncoderThread();
-        mEncoderThread.start();
-        Looper.loop();
+        mAudioEncoderThread = new AudioEncoderThread();
+        mAudioEncoderThread.start();
     }
 
     @Override
-    public void pauseRecording() {
+    public void stopRecording() {
         if (mAudioRecord != null) {
             mAudioRecord.stop();
         }
-        Looper.myLooper().quit();
+        mAudioEncoderThread.stopThread();
+        mAudioEncoderThread = null;
     }
 
     @Override
@@ -98,34 +106,48 @@ public class HwAudioEncoder implements AudioEncoder {
             inputBuffer.put(data);
             inputBuffer.limit(data.length);
             mAudioCodec.queueInputBuffer(inputBufferIndex, 0, data.length,
-                    (System.nanoTime() ) / 1000, 0);
+                    (System.nanoTime() - startTime) / 1000, 0);
         }
 
         int outputBufferIndex = mAudioCodec.dequeueOutputBuffer(mBufferInfo, 0);
         while (outputBufferIndex >= 0) {
             ByteBuffer outputData = mAudioCodec.getOutputBuffer(outputBufferIndex);
-
-
+            EncodedAudio encodedAudio = new EncodedAudio.Builder()
+                    .setBuffer(outputData)
+                    .setBufferInfo(mBufferInfo)
+                    .setMediaFormat(mAudioCodec.getOutputFormat())
+                    .createEncodedAudio();
+            callback.onEncodedAudio(encodedAudio);
             mAudioCodec.releaseOutputBuffer(outputBufferIndex, false);
             outputBufferIndex = mAudioCodec.dequeueOutputBuffer(mBufferInfo, 0);
 
         }
     }
 
-    class EncoderThread extends Thread {
+    class AudioEncoderThread extends Thread {
+
+        private volatile boolean keepAlive = true;
+
         @Override
         public void run() {
             byte[] buffer = new byte[1024];
-            while (true) {
+            while (keepAlive) {
                 int num = mAudioRecord.read(buffer, 0, buffer.length);
                 if (num > 0) {
                     encode(buffer);
+                    Log.e("AudioEncoderThread === ", num + " 读取录音数据成功");
                 } else {
-                    Log.e("EncoderThread === ", num + " 读取录音数据出错");
+                    Log.e("AudioEncoderThread === ", " 读取录音数据出错");
                     break;
                 }
             }
 
+        }
+
+        // Stops the inner thread loop and also calls AudioRecord.stop().
+        // Does not block the calling thread.
+        public void stopThread() {
+            keepAlive = false;
         }
     }
 

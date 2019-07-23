@@ -10,7 +10,7 @@ public interface AudioEncoder {
 
     void startRecording();
 
-    void pauseRecording();
+    void stopRecording();
 
     void release();
 

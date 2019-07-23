@@ -12,13 +12,16 @@ import java.io.IOException;
 /**
  * 视频合成接口
  */
-class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder.AudioEncoderCallback {
+public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder.AudioEncoderCallback {
 
     public MediaMuxer mMediaMuxer;
+    private int audioTrackIndex = -1;
+    private int videoTrackIndex = -1;
+    boolean hasStarted = false;
 
     public Mp4Muxer(String outputPath) {
         try {
-             mMediaMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            mMediaMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,13 +29,50 @@ class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder.AudioE
 
     @Override
     public void onEncodedFrame(EncodedImage frame) {
-        mMediaMuxer.writeSampleData(-1,frame.buffer,frame.bufferInfo);
+        if (videoTrackIndex == -1 && frame.mediaFormat != null) {
+            videoTrackIndex = mMediaMuxer.addTrack(frame.mediaFormat);
+        }
+        if (videoTrackIndex != -1 && audioTrackIndex != -1) {
+            start();
+            mMediaMuxer.writeSampleData(videoTrackIndex, frame.buffer, frame.bufferInfo);
+        }
+
     }
 
     @Override
     public void onEncodedAudio(EncodedAudio frame) {
-        mMediaMuxer.writeSampleData(-1,frame.mBuffer,frame.mBufferInfo);
+        if (audioTrackIndex == -1 && frame.mMediaFormat != null) {
+            audioTrackIndex = mMediaMuxer.addTrack(frame.mMediaFormat);
+        }
+        if (hasStarted) {
+            mMediaMuxer.writeSampleData(audioTrackIndex, frame.mBuffer, frame.mBufferInfo);
+        }
     }
 
+    private void start() {
+        try {
+            if (mMediaMuxer != null) {
+                mMediaMuxer.start();
+                hasStarted = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            hasStarted = false;
+        }
+    }
+
+    public void stop() {
+        try {
+            if (mMediaMuxer != null)
+                mMediaMuxer.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void release() {
+        if (mMediaMuxer != null)
+            mMediaMuxer.release();
+    }
 
 }

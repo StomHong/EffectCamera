@@ -2,6 +2,8 @@ package com.gpufast.recorder;
 
 import android.opengl.EGLContext;
 
+import com.gpufast.recorder.audio.AudioEncoder;
+import com.gpufast.recorder.audio.HwAudioEncoder;
 import com.gpufast.recorder.muxer.Mp4Muxer;
 import com.gpufast.recorder.video.EncoderType;
 import com.gpufast.recorder.video.VideoClient;
@@ -9,6 +11,8 @@ import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
+
+import java.io.IOException;
 
 public class EffectRecorder implements IRecorder {
 
@@ -23,6 +27,7 @@ public class EffectRecorder implements IRecorder {
     private VideoEncoder.VideoSettings videoSettings;
     private VideoClient mVideoClient;
     private Mp4Muxer mMp4Muxer;
+    private AudioEncoder audioEncoder;
 
     RecorderListener mRecorderListener;
 
@@ -96,6 +101,15 @@ public class EffectRecorder implements IRecorder {
         if (mRecorderListener != null) {
             mRecorderListener.onRecorderStart();
         }
+
+        try {
+            audioEncoder = new HwAudioEncoder(mMp4Muxer);
+            audioEncoder.prepare();
+            audioEncoder.startRecording();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -123,6 +137,12 @@ public class EffectRecorder implements IRecorder {
         if (mRecorderListener != null) {
             mRecorderListener.onRecorderStop();
         }
+        if (audioEncoder != null){
+            audioEncoder.stopRecording();
+        }
+        if (mMp4Muxer != null){
+            mMp4Muxer.stop();
+        }
     }
 
     @Override
@@ -137,7 +157,12 @@ public class EffectRecorder implements IRecorder {
 
     @Override
     public void release() {
-
+        if (audioEncoder != null) {
+            audioEncoder.release();
+        }
+        if (mMp4Muxer != null) {
+            mMp4Muxer.release();
+        }
     }
 
 }

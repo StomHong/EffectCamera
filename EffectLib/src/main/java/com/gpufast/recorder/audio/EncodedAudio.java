@@ -17,9 +17,6 @@ public class EncodedAudio {
         this.mBufferInfo = mBufferInfo;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
 
     public static class Builder{
 
@@ -27,19 +24,22 @@ public class EncodedAudio {
         private MediaFormat mediaFormat;
         private MediaCodec.BufferInfo bufferInfo;
 
-        private Builder() {
+        public Builder() {
         }
 
-        public void setBuffer(ByteBuffer buffer) {
+        public Builder setBuffer(ByteBuffer buffer) {
             this.buffer = buffer;
+            return this;
         }
 
-        public void setMediaFormat(MediaFormat mediaFormat) {
+        public Builder setMediaFormat(MediaFormat mediaFormat) {
             this.mediaFormat = mediaFormat;
+            return this;
         }
 
-        public void setBufferInfo(MediaCodec.BufferInfo bufferInfo) {
+        public Builder setBufferInfo(MediaCodec.BufferInfo bufferInfo) {
             this.bufferInfo = bufferInfo;
+            return this;
         }
 
         public EncodedAudio createEncodedAudio() {
