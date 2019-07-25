@@ -3,7 +3,7 @@ package com.gpufast.recorder;
 import android.opengl.EGLContext;
 
 import com.gpufast.recorder.audio.AudioEncoder;
-import com.gpufast.recorder.audio.HwAudioEncoder;
+import com.gpufast.recorder.audio.HardwareAudioEncoder;
 import com.gpufast.recorder.muxer.Mp4Muxer;
 import com.gpufast.recorder.video.EncoderType;
 import com.gpufast.recorder.video.VideoClient;
@@ -67,6 +67,12 @@ public class EffectRecorder implements IRecorder {
         }
 
         mMp4Muxer = new Mp4Muxer(params.getVideoPath());
+        try {
+            audioEncoder = new HardwareAudioEncoder(mMp4Muxer);
+            audioEncoder.prepare();
+        } catch (IOException e) {
+            ELog.e(TAG, "Init HardwareAudioEncoder:" + e.getMessage());
+        }
     }
 
     @Override
@@ -101,15 +107,9 @@ public class EffectRecorder implements IRecorder {
         if (mRecorderListener != null) {
             mRecorderListener.onRecorderStart();
         }
-
-        try {
-            audioEncoder = new HwAudioEncoder(mMp4Muxer);
-            audioEncoder.prepare();
+        if (audioEncoder != null) {
             audioEncoder.startRecording();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
     }
 
     @Override

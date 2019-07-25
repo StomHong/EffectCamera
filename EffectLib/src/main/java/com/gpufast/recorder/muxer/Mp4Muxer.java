@@ -82,8 +82,12 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder
     }
 
     public void release() {
-        if (mMediaMuxer != null)
-            mMediaMuxer.release();
+        try {
+            if (mMediaMuxer != null)
+                mMediaMuxer.release();
+        } catch (Exception e) {
+            Log.e(TAG,"Release MediaMuxer:" + e.getMessage());
+        }
     }
 
 }
