@@ -6,7 +6,11 @@ public class RecorderEngine {
 
     public static IRecorder create() {
         if (recorder == null) {
-            recorder = new EffectRecorder();
+            synchronized (RecorderEngine.class) {
+                if (recorder == null) {
+                    recorder = new EffectRecorder();
+                }
+            }
         }
         return recorder;
     }

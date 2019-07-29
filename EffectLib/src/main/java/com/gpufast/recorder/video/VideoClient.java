@@ -10,6 +10,10 @@ import com.gpufast.utils.ELog;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * 转发前端传递的图像数据，交给编码前局处理部分
+ * 然后送给编码器进行编码
+ */
 public class VideoClient {
 
     private EncoderThread mEncoderThread;

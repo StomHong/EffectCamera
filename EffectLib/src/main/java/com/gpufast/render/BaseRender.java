@@ -69,7 +69,7 @@ public abstract class BaseRender {
         private RenderHandler mHandler;
         private EglCore mEglCore;
 
-        public boolean isReady() {
+        boolean isReady() {
             return mReady;
         }
 
@@ -77,7 +77,7 @@ public abstract class BaseRender {
             return mEglCore.getEglContext();
         }
 
-        public RenderHandler getHandler() {
+        RenderHandler getHandler() {
             return mHandler;
         }
 

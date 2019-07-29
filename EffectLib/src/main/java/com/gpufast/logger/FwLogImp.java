@@ -52,6 +52,23 @@ class FwLogImp {
         }
     }
 
+//    private static boolean checkWriter(){
+//        if(logWriter == null){
+//            synchronized (FwLogImp.class){
+//                if(logWriter == null){
+//                    boolean permit = PermissionChecker.permitPermissions(context);
+//                    if(permit){
+//                        logWriter = LogWriter.getInstance();
+//                        return true;
+//                    }
+//                    return false;
+//                }
+//            }
+//        }
+//        return true;
+//    }
+
+
     private static void showConsoleLog(int level, String tag, String log) {
         tag = "[" + tag + "]";
         switch (level) {

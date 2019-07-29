@@ -1,11 +1,12 @@
-package com.bokecc.sdk.mobile.live.util;
+package com.gpufast.utils;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.v4.content.ContextCompat;
 
-public class PermissionUtils {
+import androidx.core.content.ContextCompat;
+
+public class PermissionChecker {
     private static String[] permissions = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};

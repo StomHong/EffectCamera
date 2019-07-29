@@ -21,6 +21,8 @@ public interface IRecorder {
 
     void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp);
 
+    //void sendAudioFrame(ByteBuffer buffer , long timeStamp);
+
     int getFps();
 
     void stopRecorder();

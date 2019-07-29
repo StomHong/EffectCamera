@@ -37,14 +37,14 @@ class EffectRecorder implements IRecorder {
             return;
         }
 
-        if(params.isEnableVideo()){
+        if (params.isEnableVideo()) {
             //get video encoder params
             videoSettings = new VideoEncoder.Settings(params.getVideoWidth(),
                     params.getVideoHeight(), startBitrate, maxFrameRate);
 
             if (params.isHwEncoder()) {
                 videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
-            }else{
+            } else {
                 videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.SW_VIDEO_ENCODER);
             }
 
@@ -61,9 +61,6 @@ class EffectRecorder implements IRecorder {
                 }
             }
         }
-
-
-
 
 
         mMp4Muxer = new Mp4Muxer(params.getSavePath());
@@ -84,22 +81,24 @@ class EffectRecorder implements IRecorder {
 
     @Override
     public void startRecorder() {
-        if (recorderStarted)
+        if (recorderStarted) {
             return;
+        }
         recorderStarted = true;
-        ELog.d(TAG, "videoEncoderFactory != null ?--->" + (videoEncoderFactory != null));
+
         if (videoEncoderFactory != null) {
+            ELog.i(TAG, "create video encoder");
             VideoEncoder videoEncoder = videoEncoderFactory.createEncoder(videoCodecInfo);
             if (videoEncoder == null) {
-                ELog.e(TAG, "can't create video encoder");
+                ELog.e(TAG, "can't create video encoder.");
                 return;
-            }
-
-            if (mMp4Muxer != null) {
-                mMp4Muxer.start();
             }
             mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
             mVideoClient.start();
+        }
+
+        if (mMp4Muxer != null) {
+            mMp4Muxer.start();
         }
     }
 

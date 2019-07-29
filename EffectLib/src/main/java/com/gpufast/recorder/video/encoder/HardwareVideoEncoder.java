@@ -272,13 +272,11 @@ class HardwareVideoEncoder implements VideoEncoder {
     private VideoCodecStatus encodeTextureBuffer(VideoFrame videoFrame) {
         encodeThreadChecker.checkIsOnValidThread();
         try {
-
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
             // 没有必要去释放这个frame，因为它没有buffer数据.
             VideoFrame deRotatedFrame = new VideoFrame(videoFrame.getBuffer(), 0, videoFrame.getTimestampNs());
             videoFrameDrawer.drawFrame(deRotatedFrame, textureDrawer, null);
             mEglCore.swapBuffers(videoFrame.getTimestampNs());
-
         } catch (RuntimeException e) {
             ELog.e(TAG, "encodeTexture failed", e);
             return VideoCodecStatus.ERROR;
@@ -373,14 +371,12 @@ class HardwareVideoEncoder implements VideoEncoder {
                     : EncodedImage.FrameType.VideoFrameDelta;
 
                 EncodedImage.Builder builder = outputBuilders.poll();
-
                 if (builder == null)
                     return;
-
                 builder.setBuffer(frameBuffer)
                     .setFrameType(frameType);
-                if (callback != null) {
 
+                if (callback != null) {
                     ELog.d(HardwareVideoEncoder.class, "pts:" + info.presentationTimeUs);
                     callback.onEncodedFrame(builder.createEncodedImage());
                 }
