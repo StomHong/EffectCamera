@@ -109,6 +109,8 @@ class HardwareVideoEncoder implements VideoEncoder {
     // value to send exceptions thrown during release back to the encoder thread.
     private volatile Exception shutdownException;
 
+    private long startTime;
+
     /**
      * Creates a new HardwareVideoEncoder with the given codecName, codecType, colorFormat, key frame intervals, and
      * bitrateAdjuster.
@@ -135,6 +137,7 @@ class HardwareVideoEncoder implements VideoEncoder {
         this.sharedContext = sharedContext;
         // 构造函数可以执行在其他线程中
         encodeThreadChecker.detachThread();
+        startTime = System.nanoTime();
     }
 
     @Override
@@ -381,6 +384,7 @@ class HardwareVideoEncoder implements VideoEncoder {
                     .setFrameType(frameType);
                 if (callback != null) {
                     builder.setMediaFormat(codec.getOutputFormat());
+                    info.presentationTimeUs = (System.nanoTime() - startTime) / 1000L;
                     builder.setBufferInfo(info);
                     ELog.d(HardwareVideoEncoder.class, "pts:" + info.presentationTimeUs);
                     callback.onEncodedFrame(builder.createEncodedImage());

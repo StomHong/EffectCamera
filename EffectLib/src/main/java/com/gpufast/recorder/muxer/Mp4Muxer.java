@@ -32,7 +32,7 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder
 
     @Override
     public void onEncodedFrame(EncodedImage frame) {
-        if (videoTrackIndex == -1 && frame.mediaFormat != null && frame.buffer != null) {
+        if (videoTrackIndex == -1 && frame.mediaFormat != null && frame.buffer != null && audioTrackIndex != -1) {
             videoTrackIndex = mMediaMuxer.addTrack(frame.mediaFormat);
             if (videoTrackIndex < 0) {
                 Log.e(TAG, "Add video track failed" );
@@ -41,7 +41,7 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder
         if (videoTrackIndex != -1 && audioTrackIndex != -1) {
             start();
             mMediaMuxer.writeSampleData(videoTrackIndex, frame.buffer, frame.bufferInfo);
-            Log.i(TAG, "Write video data" );
+            Log.i(TAG, "Write video data ，time="+frame.bufferInfo.presentationTimeUs );
         }
 
     }
@@ -56,7 +56,7 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder
         }
         if (mediaMuxerStarted) {
             mMediaMuxer.writeSampleData(audioTrackIndex, frame.mBuffer, frame.mBufferInfo);
-            Log.i(TAG, "Write audio data" );
+            Log.i(TAG, "Write audio data，time="+frame.mBufferInfo.presentationTimeUs );
         }
     }
 

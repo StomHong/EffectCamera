@@ -68,6 +68,8 @@ public class EncodedImage {
 
     public MediaCodec.BufferInfo bufferInfo;
 
+    public long startTime;
+
     public EncodedImage(ByteBuffer buffer, int encodedWidth, int encodedHeight, long captureTimeNs,
                         FrameType frameType, int rotation, boolean completeFrame, Integer qp,
                         MediaFormat mediaFormat, MediaCodec.BufferInfo bufferInfo) {

@@ -88,7 +88,7 @@ public class HardwareAudioEncoder implements AudioEncoder {
             mAudioEncoderThread.stopThread();
             mAudioEncoderThread = null;
         }
-        if (mAudioCodec != null){
+        if (mAudioCodec != null) {
             mAudioCodec.stop();
         }
     }
@@ -116,9 +116,8 @@ public class HardwareAudioEncoder implements AudioEncoder {
             inputBuffer.clear();
             inputBuffer.put(data);
             inputBuffer.limit(data.length);
-
-            mAudioCodec.queueInputBuffer(inputBufferIndex, 0, data.length,
-                    (System.nanoTime() - startTime)/1000L, 0);
+            mAudioCodec.queueInputBuffer(
+                    inputBufferIndex, 0, data.length, (System.nanoTime() - startTime)/1000L, 0);
         }
 
         int outputBufferIndex = mAudioCodec.dequeueOutputBuffer(mBufferInfo, 0);
