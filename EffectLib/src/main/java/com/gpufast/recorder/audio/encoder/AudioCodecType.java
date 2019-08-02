@@ -1,5 +1,8 @@
 package com.gpufast.recorder.audio.encoder;
 
+/**
+ * 音频编码器类型
+ */
 public enum  AudioCodecType {
 
     OPUS("audio/opus"),
