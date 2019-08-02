@@ -8,10 +8,6 @@ import android.view.WindowManager;
 
 import com.gpufast.effectcamera.R;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 public class RecorderActivity extends AppCompatActivity {
 
     @Override
