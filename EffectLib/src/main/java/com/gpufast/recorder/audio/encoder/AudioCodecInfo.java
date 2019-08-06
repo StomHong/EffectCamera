@@ -5,5 +5,7 @@ package com.gpufast.recorder.audio.encoder;
  */
 public class AudioCodecInfo {
 
-
+    int bitrate; // Kilobits per second.
+    AudioCodecType mimeType;
+    int sampleRate;
 }

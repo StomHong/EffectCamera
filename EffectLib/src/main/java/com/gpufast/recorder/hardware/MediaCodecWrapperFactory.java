@@ -1,8 +1,8 @@
-package com.gpufast.recorder.video.encoder;
+package com.gpufast.recorder.hardware;
 
 
 import java.io.IOException;
 
-interface MediaCodecWrapperFactory {
+public interface MediaCodecWrapperFactory {
   MediaCodecWrapper createByCodecName(String name) throws IOException;
 }

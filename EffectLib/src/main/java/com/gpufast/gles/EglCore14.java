@@ -11,9 +11,14 @@
 package com.gpufast.gles;
 
 import android.graphics.SurfaceTexture;
-import android.opengl.*;
-import android.support.annotation.Nullable;
+import android.opengl.EGL14;
+import android.opengl.EGLConfig;
+import android.opengl.EGLContext;
+import android.opengl.EGLDisplay;
+import android.opengl.EGLExt;
+import android.opengl.EGLSurface;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 
 /**
  * Holds EGL state and utility methods for handling an EGL14 EGLContext, an EGLDisplay, and an EGLSurface.
@@ -217,7 +222,7 @@ public class EglCore14 implements EglCore {
 
     // Return an EGLConfig, or die trying.
     private static EGLContext createEglContext(
-        @Nullable EGLContext sharedContext, EGLDisplay eglDisplay, EGLConfig eglConfig) {
+            @Nullable EGLContext sharedContext, EGLDisplay eglDisplay, EGLConfig eglConfig) {
         if (sharedContext != null && sharedContext == EGL14.EGL_NO_CONTEXT) {
             throw new RuntimeException("Invalid sharedContext");
         }

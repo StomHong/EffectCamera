@@ -11,32 +11,55 @@ public interface IRecorder {
      */
     void setParams(RecorderParams params);
 
+    /**
+     * 设置EGL共享上下文
+     * @param shareContext
+     */
     void setShareContext(EGLContext shareContext);
 
-    boolean isRecording();
 
-    void startRecorder();
-
-    void stitchVideo();
-
-    void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp);
+    /**
+     * 传递图像数据信息
+     * @param textureId textureId
+     * @param srcWidth srcWidth
+     * @param srcHeight srcHeight
+     */
+    void sendVideoFrame(int textureId, int srcWidth, int srcHeight);
 
     //void sendAudioFrame(ByteBuffer buffer , long timeStamp);
 
-    int getFps();
 
+    /**
+     * 开始录制
+     */
+    void startRecorder();
+
+    /**
+     * 停止录制
+     */
     void stopRecorder();
+
+
+    /**
+     * 是否正在录制
+     * @return true:正在录制
+     */
+    boolean isRecording();
+
+    /**
+     * 拼接视频
+     */
+    void jointVideo();
 
     void setRecorderListener(RecorderListener listener);
 
-    void stop();
 
     void release();
 
-    public interface RecorderListener {
+    interface RecorderListener {
 
-        void onRecoderStart();
+        void onRecorderStart();
 
-        void onRecoderStop();
+        void onRecorderStop();
     }
 }

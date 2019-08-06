@@ -17,14 +17,17 @@ import android.opengl.EGLContext;
 import android.opengl.GLES20;
 import android.os.Bundle;
 import android.view.Surface;
+
 import com.gpufast.gles.EglCore;
+import com.gpufast.logger.ELog;
+import com.gpufast.recorder.hardware.MediaCodecWrapper;
+import com.gpufast.recorder.hardware.MediaCodecWrapperFactory;
 import com.gpufast.recorder.video.EncodedImage;
 import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoFrame;
 import com.gpufast.recorder.video.btadjuster.BitrateAdjuster;
 import com.gpufast.recorder.video.renderer.GlRectDrawer;
 import com.gpufast.recorder.video.renderer.VideoFrameDrawer;
-import com.gpufast.utils.ELog;
 import com.gpufast.utils.ThreadUtils;
 
 import java.io.IOException;
@@ -86,7 +89,7 @@ class HardwareVideoEncoder implements VideoEncoder {
     private final ThreadUtils.ThreadChecker outputThreadChecker = new ThreadUtils.ThreadChecker();
 
     //初始化后不能改变，直到释放位置
-    private VideoEncoderCallback callback;
+    private VideoEncoderCallback encoderCallback;
 
     private MediaCodecWrapper codec;
     // Thread that delivers encoded frames to the user callback.
@@ -109,6 +112,8 @@ class HardwareVideoEncoder implements VideoEncoder {
     // value to send exceptions thrown during release back to the encoder thread.
     private volatile Exception shutdownException;
 
+    private long startTime;
+
     /**
      * Creates a new HardwareVideoEncoder with the given codecName, codecType, colorFormat, key frame intervals, and
      * bitrateAdjuster.
@@ -118,13 +123,12 @@ class HardwareVideoEncoder implements VideoEncoder {
      * @param surfaceColorFormat  color format for surface mode or null if not available
      * @param keyFrameIntervalSec 两个关键帧之间的间隔单位秒; 用于初始化编码器
      * @param bitrateAdjuster     纠正编码器输出非期望码率的算法
-     *
      * @throws IllegalArgumentException if colorFormat is unsupported
      */
     HardwareVideoEncoder(MediaCodecWrapperFactory mediaCodecWrapperFactory, String codecName,
-        VideoCodecType codecType, Integer surfaceColorFormat,
-        Map<String, String> params, int keyFrameIntervalSec,
-        BitrateAdjuster bitrateAdjuster, EGLContext sharedContext) {
+                         VideoCodecType codecType, Integer surfaceColorFormat,
+                         Map<String, String> params, int keyFrameIntervalSec,
+                         BitrateAdjuster bitrateAdjuster, EGLContext sharedContext) {
         this.mediaCodecWrapperFactory = mediaCodecWrapperFactory;
         this.codecName = codecName;
         this.codecType = codecType;
@@ -135,12 +139,13 @@ class HardwareVideoEncoder implements VideoEncoder {
         this.sharedContext = sharedContext;
         // 构造函数可以执行在其他线程中
         encodeThreadChecker.detachThread();
+        startTime = System.nanoTime();
     }
 
     @Override
     public VideoCodecStatus initEncoder(Settings settings, VideoEncoderCallback callback) {
         encodeThreadChecker.checkIsOnValidThread();
-        this.callback = callback;
+        this.encoderCallback = callback;
         this.width = settings.width;
         this.height = settings.height;
 
@@ -151,13 +156,14 @@ class HardwareVideoEncoder implements VideoEncoder {
         adjustedBitrate = bitrateAdjuster.getAdjustedBitrateBps();
 
         ELog.i(TAG,
-               "initEncoder: " + width + " x " + height + ". @ " + settings.startBitrate
-                   + "kbps. Fps: " + settings.maxFrameRate);
+                "initEncoder: " + width + " x " + height + ". @ " + settings.startBitrate
+                        + "kbps. Fps: " + settings.maxFrameRate);
 
         return initEncodeInternal();
     }
 
     private VideoCodecStatus initEncodeInternal() {
+
         encodeThreadChecker.checkIsOnValidThread();
         try {
             codec = mediaCodecWrapperFactory.createByCodecName(codecName);
@@ -165,20 +171,23 @@ class HardwareVideoEncoder implements VideoEncoder {
             ELog.e(TAG, "Cannot create media encoder " + codecName);
             return VideoCodecStatus.FALLBACK_SOFTWARE;
         }
+
+
         final int colorFormat = surfaceColorFormat;
+
         try {
             MediaFormat format = MediaFormat.createVideoFormat(codecType.mimeType(), width, height);
             //设置码率
-            ELog.d(HardwareVideoEncoder.class,"rate:"+adjustedBitrate);
+            ELog.d(HardwareVideoEncoder.class, "rate:" + adjustedBitrate);
             format.setInteger(MediaFormat.KEY_BIT_RATE, adjustedBitrate);
             // //设置码率控制模式
             // format.setInteger(KEY_BITRATE_MODE, VIDEO_ControlRateConstant);
             //配置颜色格式
             format.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
             //配置帧率
-            format.setInteger(MediaFormat.KEY_FRAME_RATE, 25);
+            format.setInteger(MediaFormat.KEY_FRAME_RATE, bitrateAdjuster.getAdjustedBitrateBps());
             //配置关键帧间隔
-            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2);
+            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, keyFrameIntervalSec);
 
             //配置H264 profile 和level
             if (codecType == VideoCodecType.H264) {
@@ -206,6 +215,11 @@ class HardwareVideoEncoder implements VideoEncoder {
             ELog.i(TAG, " video Format: " + format);
             codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
+            MediaFormat outputFormat = codec.getOutputFormat();
+            if (encoderCallback != null) {
+                encoderCallback.updateVideoMediaFormat(outputFormat);
+            }
+
             mEglCore = EglCore.create(sharedContext, EglCore.CONFIG_RECORDABLE);
             textureInputSurface = codec.createInputSurface();
             mEglCore.createSurface(textureInputSurface);
@@ -215,7 +229,7 @@ class HardwareVideoEncoder implements VideoEncoder {
             codec.start();
 
         } catch (IllegalStateException e) {
-            ELog.e(TAG, "initEncodeInternal failed", e);
+            ELog.e(TAG, "initEncodeInternal failed:" + e.getLocalizedMessage());
             release();
             return VideoCodecStatus.FALLBACK_SOFTWARE;
         }
@@ -252,11 +266,11 @@ class HardwareVideoEncoder implements VideoEncoder {
         }
 
         EncodedImage.Builder builder = EncodedImage.builder()
-            .setCaptureTimeNs(videoFrame.getTimestampNs())
-            .setCompleteFrame(true)
-            .setEncodedWidth(videoFrame.getBuffer().getWidth())
-            .setEncodedHeight(videoFrame.getBuffer().getHeight())
-            .setRotation(videoFrame.getRotation());
+                .setCaptureTimeNs(videoFrame.getTimestampNs())
+                .setCompleteFrame(true)
+                .setEncodedWidth(videoFrame.getBuffer().getWidth())
+                .setEncodedHeight(videoFrame.getBuffer().getHeight())
+                .setRotation(videoFrame.getRotation());
 
         outputBuilders.offer(builder);
 
@@ -278,7 +292,7 @@ class HardwareVideoEncoder implements VideoEncoder {
             videoFrameDrawer.drawFrame(deRotatedFrame, textureDrawer, null);
             mEglCore.swapBuffers(videoFrame.getTimestampNs());
         } catch (RuntimeException e) {
-            ELog.e(TAG, "encodeTexture failed", e);
+            ELog.e(TAG, "encodeTexture failed:" + e.getLocalizedMessage());
             return VideoCodecStatus.ERROR;
         }
         return VideoCodecStatus.OK;
@@ -294,7 +308,6 @@ class HardwareVideoEncoder implements VideoEncoder {
      *
      * @param newWidth  newWidth
      * @param newHeight newHeight
-     *
      * @return VideoCodecStatus
      */
     private VideoCodecStatus resetCodec(int newWidth, int newHeight) {
@@ -333,6 +346,7 @@ class HardwareVideoEncoder implements VideoEncoder {
             if (index < 0) {
                 return;
             }
+
             ByteBuffer codecOutputBuffer = codec.getOutputBuffers()[index];
             codecOutputBuffer.position(info.offset);
             codecOutputBuffer.limit(info.offset + info.size);
@@ -342,10 +356,12 @@ class HardwareVideoEncoder implements VideoEncoder {
                 configBuffer = ByteBuffer.allocateDirect(info.size);
                 configBuffer.put(codecOutputBuffer);
             } else {
+
                 if (adjustedBitrate != bitrateAdjuster.getAdjustedBitrateBps()) {
                     updateBitrate();
                 }
 
+                //判断是否是关键帧
                 final boolean isKeyFrame = (info.flags & MediaCodec.BUFFER_FLAG_SYNC_FRAME) != 0;
                 if (isKeyFrame) {
                     ELog.d(TAG, "keyFrame frame generated");
@@ -354,8 +370,8 @@ class HardwareVideoEncoder implements VideoEncoder {
                 final ByteBuffer frameBuffer;
                 if (isKeyFrame && codecType == VideoCodecType.H264) {
                     ELog.d(TAG,
-                           "Prepending config frame of size " + configBuffer.capacity()
-                               + " to output buffer with offset " + info.offset + ", size " + info.size);
+                            "Prepending config frame of size " + configBuffer.capacity()
+                                    + " to output buffer with offset " + info.offset + ", size " + info.size);
                     // For H.264 key frame prepend SPS and PPS NALs at the start.
                     frameBuffer = ByteBuffer.allocateDirect(info.size + configBuffer.capacity());
                     configBuffer.rewind();
@@ -367,24 +383,30 @@ class HardwareVideoEncoder implements VideoEncoder {
                 }
 
                 final EncodedImage.FrameType frameType = isKeyFrame
-                    ? EncodedImage.FrameType.VideoFrameKey
-                    : EncodedImage.FrameType.VideoFrameDelta;
+                        ? EncodedImage.FrameType.VideoFrameKey
+                        : EncodedImage.FrameType.VideoFrameDelta;
 
                 EncodedImage.Builder builder = outputBuilders.poll();
+
                 if (builder == null)
                     return;
-                builder.setBuffer(frameBuffer)
-                    .setFrameType(frameType);
 
-                if (callback != null) {
-                    ELog.d(HardwareVideoEncoder.class, "pts:" + info.presentationTimeUs);
-                    callback.onEncodedFrame(builder.createEncodedImage());
+                //设置编码时间戳
+                info.presentationTimeUs = (System.nanoTime() - startTime) / 1000L;
+
+                builder.setBuffer(frameBuffer)
+                        .setMediaFormat(codec.getOutputFormat())
+                        .setBufferInfo(info)
+                        .setFrameType(frameType);
+
+                if (encoderCallback != null) {
+                    encoderCallback.onEncodedFrame(builder.createEncodedImage());
                 }
             }
 
-            codec.releaseOutputBuffer(index, false);
+            codec.releaseOutputBuffer(index, info.presentationTimeUs);
         } catch (IllegalStateException e) {
-            ELog.e(TAG, "deliverOutput failed", e);
+            ELog.e(TAG, "deliverOutput failed:" + e.getLocalizedMessage());
         }
     }
 
@@ -394,12 +416,12 @@ class HardwareVideoEncoder implements VideoEncoder {
         try {
             codec.stop();
         } catch (Exception e) {
-            ELog.e(TAG, "Media encoder stop failed", e);
+            ELog.e(TAG, "Media encoder stop failed:" + e.getLocalizedMessage());
         }
         try {
             codec.release();
         } catch (Exception e) {
-            ELog.e(TAG, "Media encoder release failed", e);
+            ELog.e(TAG, "Media encoder release failed:" + e.getLocalizedMessage());
             // Propagate exceptions caught during release back to the main thread.
             shutdownException = e;
         }
@@ -416,7 +438,7 @@ class HardwareVideoEncoder implements VideoEncoder {
             codec.setParameters(params);
             return VideoCodecStatus.OK;
         } catch (IllegalStateException e) {
-            ELog.e(TAG, "updateBitrate failed", e);
+            ELog.e(TAG, "updateBitrate failed:" + e.getLocalizedMessage());
             return VideoCodecStatus.ERROR;
         }
     }
@@ -435,7 +457,7 @@ class HardwareVideoEncoder implements VideoEncoder {
                 returnValue = VideoCodecStatus.TIMEOUT;
             } else if (shutdownException != null) {
                 // Log the exception and turn it into an error.
-                ELog.e(TAG, "Media encoder release exception", shutdownException);
+                ELog.e(TAG, "Media encoder release exception:" + shutdownException.getLocalizedMessage());
                 returnValue = VideoCodecStatus.ERROR;
             } else {
                 returnValue = VideoCodecStatus.OK;

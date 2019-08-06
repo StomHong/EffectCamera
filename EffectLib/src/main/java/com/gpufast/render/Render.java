@@ -11,8 +11,6 @@ import android.view.Surface;
 import com.gpufast.effect.filter.CropScaleFilter;
 import com.gpufast.effect.filter.ImageFilter;
 import com.gpufast.effect.filter.OesToRgbFilter;
-import com.gpufast.recorder.IRecorder;
-import com.gpufast.recorder.RecorderEngine;
 import com.gpufast.utils.ELog;
 
 public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailableListener {
@@ -38,11 +36,7 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
     //最终显示的滤镜
     private ImageFilter mImageFilter;
 
-    private FrameCallback mCallback = null;
-
-    private IRecorder mRecorder;
-
-    private PresentationTime mPTime;
+    private OnRenderCallback renderCallback = null;
 
     public Render(Surface surface) {
         super(surface);
@@ -63,9 +57,6 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
         swTexture = new SurfaceTexture(-1);
         swTexture.detachFromGLContext();
         swTexture.setOnFrameAvailableListener(this);
-
-        mRecorder = RecorderEngine.create();
-        mPTime = new PresentationTime(mRecorder.getFps());
     }
 
 
@@ -88,7 +79,9 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 mOesToRgbFilter.init();
                 mScaleFilter.init();
                 mImageFilter.init();
-                mRecorder.setShareContext(getEGLContext());
+                if (renderCallback != null) {
+                    renderCallback.onEglContextCreate(getEGLContext());
+                }
             }
 
             @Override
@@ -106,21 +99,15 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
                 swTexture.updateTexImage();
                 swTexture.getTransformMatrix(textureMatrix);
 
-                mPTime.record();
                 int srcRgbId = mOesToRgbFilter.drawTexture(textures[0], textureMatrix);
                 int newTexId = 0;
-                if (mCallback != null) {
-                    newTexId = mCallback.onFrameCallback(getEGLContext(), srcRgbId, srcTexWidth, srcTexHeight);
+                if (renderCallback != null) {
+                    newTexId = renderCallback.onFrameCallback(srcRgbId, srcTexWidth, srcTexHeight);
                 }
+
                 if (newTexId == 0) {
                     newTexId = srcRgbId;
                 }
-
-                if (mRecorder != null) {
-                    mRecorder.sendVideoFrame(newTexId, srcTexWidth, srcTexHeight, mPTime.presentationTimeUs);
-                }
-//                Log.d(TAG, "onDraw: "+mPTime.presentationTimeUs);
-
                 //屏幕适配
                 int aniTextureId = mScaleFilter.drawTexture(newTexId);
 
@@ -133,8 +120,8 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
 
             @Override
             public void onDestroy() {
-                if (mCallback != null) {
-                    mCallback.onEglContextDestroy();
+                if (renderCallback != null) {
+                    renderCallback.onEglContextDestroy();
                 }
                 GLES20.glDeleteTextures(1, textures, 0);
                 swTexture.release();
@@ -164,13 +151,15 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
         onFrameAvailable();
     }
 
-    public void setFrameCallback(FrameCallback callback) {
-        mCallback = callback;
+    public void setOnRenderCallback(OnRenderCallback callback) {
+        renderCallback = callback;
     }
 
-    public interface FrameCallback {
+    public interface OnRenderCallback {
 
-        int onFrameCallback(EGLContext context, int textureId, int width, int height);
+        void onEglContextCreate(EGLContext eglContext);
+
+        int onFrameCallback(int textureId, int width, int height);
 
         void onEglContextDestroy();
     }

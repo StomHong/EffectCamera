@@ -29,7 +29,7 @@ public class HardwareAudioEncoderFactory implements AudioEncoderFactory {
     }
 
     @Override
-    public AudioEncoder createEncoder(AudioCodecInfo inputCodecInfo) {
+    public AudioEncoder2 createEncoder(AudioCodecInfo inputCodecInfo) {
 
 
         return null;

@@ -1,29 +1,25 @@
-package com.gpufast.recorder.video;
+package com.gpufast.recorder.audio;
 
-import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.gpufast.logger.ELog;
 import com.gpufast.recorder.PresentationTime;
-import com.gpufast.utils.ELog;
+import com.gpufast.recorder.audio.encoder.AudioEncoder;
+import com.gpufast.recorder.video.VideoFrame;
 
 import java.lang.ref.WeakReference;
 
-/**
- * 转发前端传递的图像数据，交给编码前局处理部分
- * 然后送给编码器进行编码
- */
-public class VideoClient {
+public class AudioClient {
 
     private EncoderThread mEncoderThread;
     private PresentationTime pTime;
 
-    public VideoClient(VideoEncoder encoder,
-                       VideoEncoder.Settings settings,
-                       VideoEncoder.VideoEncoderCallback callback) {
+    public AudioClient(AudioEncoder encoder,
+                       AudioEncoder.Settings settings,
+                       AudioEncoder.AudioEncoderCallback callback) {
         mEncoderThread = new EncoderThread(encoder, settings, callback);
-        pTime = new PresentationTime(settings.maxFrameRate);
     }
 
 
@@ -34,15 +30,8 @@ public class VideoClient {
     }
 
 
-    public void sendVideoFrame(int textureId, int srcWidth, int srcHeight) {
-        if (mEncoderThread != null && mEncoderThread.isReady()) {
-            pTime.record();
-            VideoFrame videoFrame = new VideoFrame(
-                    new TextureBufferImpl(textureId, srcWidth,
-                            srcHeight, VideoFrame.TextureBuffer.TextureType.RGB),
-                    0, pTime.presentationTimeNs);
-            mEncoderThread.getHandler().sendVideoFrame(videoFrame);
-        }
+    public void sendAudioBuffer() {
+
     }
 
     public void stop() {
@@ -56,13 +45,14 @@ public class VideoClient {
         private EncoderHandler mEncoderHandler;
 
 
-        private VideoEncoder mVideoEncoder;
-        private VideoEncoder.Settings mSettings;
-        VideoEncoder.VideoEncoderCallback mCallback;
+        private AudioEncoder mAudioEncoder;
+        private AudioEncoder.Settings mSettings;
 
-        EncoderThread(VideoEncoder encoder, VideoEncoder.Settings settings,
-                      VideoEncoder.VideoEncoderCallback callback) {
-            mVideoEncoder = encoder;
+        AudioEncoder.AudioEncoderCallback mCallback;
+
+        EncoderThread(AudioEncoder encoder, AudioEncoder.Settings settings,
+                      AudioEncoder.AudioEncoderCallback callback) {
+            mAudioEncoder = encoder;
             mSettings = settings;
             mCallback = callback;
         }
@@ -98,14 +88,14 @@ public class VideoClient {
         }
 
         private void initEncoder() {
-            if (mVideoEncoder != null) {
-                mVideoEncoder.initEncoder(mSettings, mCallback);
+            if (mAudioEncoder != null) {
+                mAudioEncoder.initEncoder(mSettings, mCallback);
             }
         }
 
-        void sendVideoFrame(VideoFrame frame) {
-            if (mVideoEncoder != null && mReady) {
-                mVideoEncoder.encode(frame);
+        void sendAudioFrame(byte[] bufferBytes, int len, long presentationTimeUs) {
+            if (mAudioEncoder != null && mReady) {
+                mAudioEncoder.encodePcm(bufferBytes, len, presentationTimeUs);
             }
         }
 
@@ -124,9 +114,9 @@ public class VideoClient {
         private static final int ON_FRAME_AVAILABLE = 0x001;
         private static final int ON_STOP = 0x002;
 
-        private WeakReference<VideoClient.EncoderThread> mWeakEncoderThread;
+        private WeakReference<AudioClient.EncoderThread> mWeakEncoderThread;
 
-        EncoderHandler(VideoClient.EncoderThread thread) {
+        EncoderHandler(EncoderThread thread) {
             mWeakEncoderThread = new WeakReference<>(thread);
         }
 
@@ -149,7 +139,6 @@ public class VideoClient {
             }
             switch (msg.what) {
                 case ON_FRAME_AVAILABLE:
-                    encoderThread.sendVideoFrame((VideoFrame) msg.obj);
                     break;
                 case ON_STOP:
                     encoderThread.shutdown();
@@ -158,61 +147,5 @@ public class VideoClient {
         }
     }
 
-
-    private static class TextureBufferImpl implements VideoFrame.TextureBuffer {
-
-        private int width;
-        private int height;
-        private int textureId;
-        private TextureType type;
-
-        public TextureBufferImpl(int textureId, int width, int height, TextureType type) {
-            this.width = width;
-            this.height = height;
-            this.textureId = textureId;
-            this.type = type;
-        }
-
-        @Override
-        public int getWidth() {
-            return width;
-        }
-
-        @Override
-        public int getHeight() {
-            return height;
-        }
-
-        @Override
-        public VideoFrame.I420Buffer toI420() {
-            return null;
-        }
-
-        @Override
-        public void release() {
-
-        }
-
-        @Override
-        public VideoFrame.Buffer cropAndScale(int cropX, int cropY, int cropWidth, int cropHeight, int scaleWidth, int scaleHeight) {
-            return null;
-        }
-
-        @Override
-        public TextureType getType() {
-            return type;
-        }
-
-        @Override
-        public int getTextureId() {
-            return textureId;
-        }
-
-        @Override
-        public Matrix getTransformMatrix() {
-            return null;
-        }
-
-    }
 
 }

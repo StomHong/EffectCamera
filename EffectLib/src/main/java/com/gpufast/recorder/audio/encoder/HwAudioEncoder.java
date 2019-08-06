@@ -2,7 +2,7 @@ package com.gpufast.recorder.audio.encoder;
 
 import android.media.MediaCodec;
 
-class HwAudioEncoder implements AudioEncoder {
+class HwAudioEncoder implements AudioEncoder2 {
 
     private static final String audioMime = "audio/mp4a-latm";
 

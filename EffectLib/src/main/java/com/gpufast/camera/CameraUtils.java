@@ -2,7 +2,6 @@ package com.gpufast.camera;
 
 import android.hardware.Camera;
 import com.gpufast.utils.ELog;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -102,7 +101,6 @@ class CameraUtils {
                 }
             }
         }
-
         return ret;
     }
 

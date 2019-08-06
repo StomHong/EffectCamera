@@ -5,18 +5,17 @@ import android.media.MediaCodecList;
 import android.opengl.EGLContext;
 import android.os.Build;
 
+import com.gpufast.logger.ELog;
+import com.gpufast.recorder.hardware.MediaCodecUtils;
+import com.gpufast.recorder.hardware.MediaCodecWrapperFactoryImpl;
 import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.btadjuster.FrameRateBitrateAdjuster;
-import com.gpufast.utils.ELog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.gpufast.recorder.video.encoder.MediaCodecUtils.EXYNOS_PREFIX;
-import static com.gpufast.recorder.video.encoder.MediaCodecUtils.HISI_PREFIX;
-import static com.gpufast.recorder.video.encoder.MediaCodecUtils.QCOM_PREFIX;
 
 
 /**
@@ -25,6 +24,7 @@ import static com.gpufast.recorder.video.encoder.MediaCodecUtils.QCOM_PREFIX;
  */
 public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
+    private static final String TAG = "HardwareVideoEncoderFac";
     private EGLContext sharedContext;
     private static final List<String> H264_HW_EXCEPTION_MODELS =
             Arrays.asList("SAMSUNG-SGH-I337", "Nexus 7", "Nexus 4");
@@ -100,7 +100,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
             try {
                 info = MediaCodecList.getCodecInfoAt(i);
             } catch (IllegalArgumentException e) {
-                ELog.e(this, "Cannot retrieve encoder codec info", e);
+                ELog.e(this, "Cannot retrieve encoder codec info:"+e);
             }
             if (info == null || !info.isEncoder()) {
                 continue;
@@ -138,7 +138,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
 
     /**
-     * 如果是高通的处理器， 则4.4之后支持硬编码，三星的处理器5.1之后支持
+     * 如果是高通的处理器， 则4.4之后支持硬编码，三星和海思的处理器5.1之后支持
      */
     @SuppressWarnings("all")
     private boolean isHardwareSupportedInCurrentSdkH264(MediaCodecInfo info) {
@@ -146,10 +146,10 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
             return false;
         }
         String name = info.getName();
-        if (name.startsWith(QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (name.startsWith(MediaCodecUtils.QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return true;
         }
-        if ((name.startsWith(EXYNOS_PREFIX) || (name.startsWith(HISI_PREFIX))
+        if ((name.startsWith(MediaCodecUtils.EXYNOS_PREFIX) || (name.startsWith(MediaCodecUtils.HISI_PREFIX))
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
             return true;
         }
@@ -157,8 +157,13 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
     }
 
 
+    /**
+     * h264高级编码特性
+     * @param info info
+     * @return true:支持，false不支持
+     */
     private boolean isH264HighProfileSupported(MediaCodecInfo info) {
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.M
-                && info.getName().startsWith(EXYNOS_PREFIX);
+                && info.getName().startsWith(MediaCodecUtils.EXYNOS_PREFIX);
     }
 }

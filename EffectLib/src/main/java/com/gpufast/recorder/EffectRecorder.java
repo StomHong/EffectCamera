@@ -2,6 +2,8 @@ package com.gpufast.recorder;
 
 import android.opengl.EGLContext;
 
+import com.gpufast.recorder.audio.encoder.AudioEncoder;
+import com.gpufast.recorder.audio.encoder.HardwareAudioEncoder;
 import com.gpufast.recorder.muxer.Mp4Muxer;
 import com.gpufast.recorder.video.EncoderType;
 import com.gpufast.recorder.video.VideoClient;
@@ -10,7 +12,10 @@ import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import com.gpufast.utils.ELog;
 
-class EffectRecorder implements IRecorder {
+import java.io.IOException;
+
+public class EffectRecorder implements IRecorder {
+
     private static final String TAG = EffectRecorder.class.getSimpleName();
 
     private volatile boolean recorderStarted = false;
@@ -22,6 +27,9 @@ class EffectRecorder implements IRecorder {
     private VideoEncoder.Settings videoSettings;
     private VideoClient mVideoClient;
     private Mp4Muxer mMp4Muxer;
+    private AudioEncoder audioEncoder;
+
+    RecorderListener mRecorderListener;
 
     //开始码率
     public final int startBitrate = 4000; // Kilobits per second.
@@ -61,9 +69,13 @@ class EffectRecorder implements IRecorder {
                 }
             }
         }
-
-
         mMp4Muxer = new Mp4Muxer(params.getSavePath());
+        try {
+            audioEncoder = new HardwareAudioEncoder(mMp4Muxer);
+            audioEncoder.initEncoder();
+        } catch (IOException e) {
+            ELog.e(TAG, "Init HardwareAudioEncoder:" + e.getMessage());
+        }
     }
 
     @Override
@@ -97,51 +109,60 @@ class EffectRecorder implements IRecorder {
             mVideoClient.start();
         }
 
-        if (mMp4Muxer != null) {
-            mMp4Muxer.start();
+
+
+        if (audioEncoder != null) {
+            audioEncoder.startRecording();
+        }
+
+        if (mRecorderListener != null) {
+            mRecorderListener.onRecorderStart();
         }
     }
 
     @Override
-    public void stitchVideo() {
+    public void jointVideo() {
 
     }
 
     @Override
-    public void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp) {
+    public void sendVideoFrame(int textureId, int srcWidth, int srcHeight) {
         if (mVideoClient != null && recorderStarted) {
-            mVideoClient.sendVideoFrame(textureId, srcWidth, srcHeight, timeStamp);
+            mVideoClient.sendVideoFrame(textureId, srcWidth, srcHeight);
         }
     }
 
-    @Override
-    public int getFps() {
-        return maxFrameRate;
-    }
 
     @Override
     public void stopRecorder() {
-        if (mMp4Muxer != null) {
-            mMp4Muxer.stop();
-        }
         if (mVideoClient != null) {
             mVideoClient.stop();
+        }
+        if (mRecorderListener != null) {
+            mRecorderListener.onRecorderStop();
+        }
+        if (audioEncoder != null){
+            audioEncoder.stopRecording();
+        }
+        if (mMp4Muxer != null){
+            mMp4Muxer.stop();
         }
     }
 
     @Override
     public void setRecorderListener(RecorderListener listener) {
-        //TODO:设置录制监听器
+       this.mRecorderListener = listener;
     }
 
-    @Override
-    public void stop() {
-        stopRecorder();
-    }
 
     @Override
     public void release() {
-
+        if (audioEncoder != null) {
+            audioEncoder.release();
+        }
+        if (mMp4Muxer != null) {
+            mMp4Muxer.release();
+        }
     }
 
 }

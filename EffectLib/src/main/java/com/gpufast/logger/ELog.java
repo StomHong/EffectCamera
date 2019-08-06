@@ -87,7 +87,6 @@ public class ELog {
         log(tag, ELOG_TAG + msg, VERBOSE_LEVEL);
     }
 
-
     private static void log(String tag, String msg, int level) {
         FwLog.write(level, tag, msg);
     }
