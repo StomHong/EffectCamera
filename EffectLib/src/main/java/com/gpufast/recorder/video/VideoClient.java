@@ -5,8 +5,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.gpufast.logger.ELog;
 import com.gpufast.recorder.PresentationTime;
-import com.gpufast.utils.ELog;
 
 import java.lang.ref.WeakReference;
 

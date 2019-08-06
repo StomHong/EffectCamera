@@ -17,7 +17,7 @@ public class AudioRecorder {
         int minBufferSize = AudioRecord.getMinBufferSize(
                 SAMPLE_RATE, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
         if (minBufferSize == AudioRecord.ERROR || minBufferSize == AudioRecord.ERROR_BAD_VALUE) {
-            ELog.e("HardwareAudioEncoder ", "AudioRecord.getMinBufferSize failed: " + minBufferSize);
+            ELog.e("HwAudioEncoder ", "AudioRecord.getMinBufferSize failed: " + minBufferSize);
         }
 
         mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,

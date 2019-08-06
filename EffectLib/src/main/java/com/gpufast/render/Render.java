@@ -11,7 +11,7 @@ import android.view.Surface;
 import com.gpufast.effect.filter.CropScaleFilter;
 import com.gpufast.effect.filter.ImageFilter;
 import com.gpufast.effect.filter.OesToRgbFilter;
-import com.gpufast.utils.ELog;
+import com.gpufast.logger.ELog;
 
 public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = Render.class.getSimpleName();
@@ -142,7 +142,7 @@ public class Render extends BaseRender implements SurfaceTexture.OnFrameAvailabl
     private void checkGlError(String op) {
         int error;
         while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            ELog.e("SurfaceTest", op + ": glError " + GLUtils.getEGLErrorString(error));
+            ELog.e(TAG, op + ": glError " + GLUtils.getEGLErrorString(error));
         }
     }
 

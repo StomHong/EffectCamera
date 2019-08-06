@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.gpufast.utils.ELog;
+import com.gpufast.logger.ELog;
 
 import java.io.File;
 import java.io.FileNotFoundException;

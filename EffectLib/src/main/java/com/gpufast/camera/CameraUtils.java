@@ -1,7 +1,9 @@
 package com.gpufast.camera;
 
 import android.hardware.Camera;
-import com.gpufast.utils.ELog;
+
+import com.gpufast.logger.ELog;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

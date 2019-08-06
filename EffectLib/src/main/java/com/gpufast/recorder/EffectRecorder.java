@@ -2,19 +2,19 @@ package com.gpufast.recorder;
 
 import android.opengl.EGLContext;
 
+import com.gpufast.logger.ELog;
 import com.gpufast.recorder.audio.encoder.AudioEncoder;
-import com.gpufast.recorder.audio.encoder.HardwareAudioEncoder;
+import com.gpufast.recorder.audio.encoder.HwAudioEncoder;
 import com.gpufast.recorder.muxer.Mp4Muxer;
 import com.gpufast.recorder.video.EncoderType;
 import com.gpufast.recorder.video.VideoClient;
 import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
-import com.gpufast.utils.ELog;
 
 import java.io.IOException;
 
-public class EffectRecorder implements IRecorder {
+public class EffectRecorder extends BaseRecorder {
 
     private static final String TAG = EffectRecorder.class.getSimpleName();
 
@@ -44,7 +44,6 @@ public class EffectRecorder implements IRecorder {
         if (params == null) {
             return;
         }
-
         if (params.isEnableVideo()) {
             //get video encoder params
             videoSettings = new VideoEncoder.Settings(params.getVideoWidth(),
@@ -71,10 +70,10 @@ public class EffectRecorder implements IRecorder {
         }
         mMp4Muxer = new Mp4Muxer(params.getSavePath());
         try {
-            audioEncoder = new HardwareAudioEncoder(mMp4Muxer);
+            audioEncoder = new HwAudioEncoder(mMp4Muxer);
             audioEncoder.initEncoder();
         } catch (IOException e) {
-            ELog.e(TAG, "Init HardwareAudioEncoder:" + e.getMessage());
+            ELog.e(TAG, "Init HwAudioEncoder:" + e.getMessage());
         }
     }
 

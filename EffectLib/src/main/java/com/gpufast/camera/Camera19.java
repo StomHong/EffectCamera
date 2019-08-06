@@ -1,7 +1,8 @@
 package com.gpufast.camera;
 
 import android.hardware.Camera;
-import com.gpufast.utils.ELog;
+
+import com.gpufast.logger.ELog;
 
 import java.io.IOException;
 import java.util.List;

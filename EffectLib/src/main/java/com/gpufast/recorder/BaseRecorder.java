@@ -2,16 +2,15 @@ package com.gpufast.recorder;
 
 import android.opengl.EGLContext;
 
+import com.gpufast.logger.ELog;
 import com.gpufast.recorder.muxer.MediaMuxer;
 import com.gpufast.recorder.video.EncoderType;
 import com.gpufast.recorder.video.VideoClient;
 import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
-import com.gpufast.utils.ELog;
 
 public abstract class BaseRecorder implements IRecorder {
-
     private static final String TAG = "BaseRecorder";
 
     //视频录制参数

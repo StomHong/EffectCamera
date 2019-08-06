@@ -22,7 +22,6 @@ public abstract class BaseRender {
         onRenderInit();
         RenderCallback callback = getRenderCallback();
         mRenderThread = new RenderThread(surface, callback);
-
     }
 
     public void render() {

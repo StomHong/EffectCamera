@@ -4,8 +4,8 @@ import android.os.Build;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.gpufast.logger.ELog;
 import com.gpufast.render.Render;
-import com.gpufast.utils.ELog;
 
 /**
  * @author Sivin 2018/10/26

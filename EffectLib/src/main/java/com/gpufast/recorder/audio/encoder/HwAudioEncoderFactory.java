@@ -7,7 +7,7 @@ import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HardwareAudioEncoderFactory implements AudioEncoderFactory {
+public class HwAudioEncoderFactory implements AudioEncoderFactory {
 
 
     @Override
@@ -29,7 +29,7 @@ public class HardwareAudioEncoderFactory implements AudioEncoderFactory {
     }
 
     @Override
-    public AudioEncoder2 createEncoder(AudioCodecInfo inputCodecInfo) {
+    public AudioEncoder createEncoder(AudioCodecInfo inputCodecInfo) {
 
 
         return null;
