@@ -2,6 +2,8 @@ package com.gpufast.recorder;
 
 import android.opengl.EGLContext;
 
+import com.gpufast.recorder.audio.AudioProcessor;
+
 public interface IRecorder {
 
     /**
@@ -25,8 +27,6 @@ public interface IRecorder {
      * @param srcHeight srcHeight
      */
     void sendVideoFrame(int textureId, int srcWidth, int srcHeight);
-
-    //void sendAudioFrame(ByteBuffer buffer , long timeStamp);
 
 
     /**
@@ -55,6 +55,8 @@ public interface IRecorder {
 
 
     void release();
+
+    void setAudioProcessor(AudioProcessor callback);
 
     interface RecorderListener {
 

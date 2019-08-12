@@ -6,6 +6,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 
 import com.gpufast.logger.ELog;
+import com.gpufast.recorder.audio.AudioFrame;
 import com.gpufast.recorder.audio.EncodedAudio;
 import com.gpufast.recorder.hardware.MediaCodecWrapper;
 import com.gpufast.recorder.hardware.MediaCodecWrapperFactory;
@@ -22,21 +23,28 @@ public class HwAudioEncoder implements AudioEncoder {
 
     private MediaCodecWrapperFactory mediaCodecFactory;
 
+    /**
+     * 编码器
+     */
     private MediaCodecWrapper codec;
 
+    /**
+     * 编码器名称
+     */
     private final String codecName;
 
+    /**
+     * 音频编码类型
+     */
     private AudioCodecType codecType;
-
-    private int bitRate;
-
-    private int sampleRate;
 
 
     private MediaCodec.BufferInfo mBufferInfo;
 
-
-    private AudioEncoderCallback callback;
+    /**
+     * 音频编码回到
+     */
+    private AudioEncoderCallback encoderCallback;
     /**
      * 声道数
      */
@@ -55,7 +63,7 @@ public class HwAudioEncoder implements AudioEncoder {
         if (settings == null) {
             return AudioCodecStatus.ERR_PARAMETER;
         }
-
+        encoderCallback = callback;
         try {
             codec = mediaCodecFactory.createByCodecName(codecName);
         } catch (IOException | IllegalArgumentException e) {
@@ -78,6 +86,11 @@ public class HwAudioEncoder implements AudioEncoder {
             format.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0);
 
             codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+
+            if (encoderCallback != null) {
+                MediaFormat outputFormat = codec.getOutputFormat();
+                encoderCallback.onUpdateAudioFormat(outputFormat);
+            }
             codec.start();
 
         } catch (IllegalStateException e) {
@@ -90,7 +103,7 @@ public class HwAudioEncoder implements AudioEncoder {
     }
 
     @Override
-    public void encodePcm(byte[] pcmData, int len, long presentationTimeUs) {
+    public void encodePcm(AudioFrame frame) {
         int inputBufferIndex = codec.dequeueInputBuffer(-1);
         if (inputBufferIndex >= 0) {
             ByteBuffer inputBuffer = codec.getInputBuffer(inputBufferIndex);
@@ -99,10 +112,10 @@ public class HwAudioEncoder implements AudioEncoder {
                 return;
             }
             inputBuffer.clear();
-            inputBuffer.put(pcmData);
-            inputBuffer.limit(len);
+            inputBuffer.put(frame.buf);
+            inputBuffer.limit(frame.len);
             codec.queueInputBuffer(
-                    inputBufferIndex, 0, len, presentationTimeUs, 0);
+                    inputBufferIndex, 0, frame.len, frame.timeStamp, 0);
         }
 
         int outputBufferIndex = codec.dequeueOutputBuffer(mBufferInfo, 0);
@@ -115,11 +128,11 @@ public class HwAudioEncoder implements AudioEncoder {
                     .setBuffer(outputData)
                     .setBufferInfo(mBufferInfo)
                     .createEncodedAudio();
-            if (callback != null) {
-                callback.onEncodedAudio(encodedAudio);
+            if (encoderCallback != null) {
+                encoderCallback.onEncodedAudio(encodedAudio);
             }
 
-            codec.releaseOutputBuffer(outputBufferIndex, presentationTimeUs);
+            codec.releaseOutputBuffer(outputBufferIndex, frame.timeStamp);
             outputBufferIndex = codec.dequeueOutputBuffer(mBufferInfo, 0);
         }
     }

@@ -3,6 +3,8 @@ package com.gpufast.recorder;
 
 import android.opengl.EGLContext;
 
+import com.gpufast.recorder.audio.AudioProcessor;
+
 public class RecorderEngine {
     private static IRecorder recorder;
 
@@ -32,6 +34,12 @@ public class RecorderEngine {
     public static void setShareContext(EGLContext eglContext) {
         create().setShareContext(eglContext);
     }
+
+
+    public static void setAudioProcessor(AudioProcessor callback){
+        create().setAudioProcessor(callback);
+    }
+
 
     /***
      * 送入视频数据给录音器

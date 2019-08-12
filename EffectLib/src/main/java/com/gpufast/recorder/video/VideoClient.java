@@ -49,6 +49,10 @@ public class VideoClient {
         mEncoderThread.getHandler().sendToStop();
     }
 
+    public void release() {
+
+    }
+
     private static class EncoderThread extends Thread {
         private static final String TAG = EncoderThread.class.getSimpleName();
         private final Object mStartLock = new Object();

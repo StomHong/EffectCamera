@@ -5,12 +5,14 @@ import android.view.SurfaceView;
 
 import com.gpufast.camera.CameraEngine;
 import com.gpufast.effectcamera.recorder.contract.RecorderContract;
+import com.gpufast.logger.ELog;
 import com.gpufast.recorder.RecorderEngine;
 import com.gpufast.recorder.RecorderParams;
+import com.gpufast.recorder.audio.AudioFrame;
+import com.gpufast.recorder.audio.AudioProcessor;
 import com.gpufast.render.Render;
-import com.gpufast.utils.ELog;
 
-public class RecorderPresenter implements RecorderContract.Presenter, Render.OnRenderCallback {
+public class RecorderPresenter implements RecorderContract.Presenter, Render.OnRenderCallback, AudioProcessor {
     private static final String TAG = "RecorderPresenter";
 
     private RecorderContract.View mView;
@@ -31,6 +33,7 @@ public class RecorderPresenter implements RecorderContract.Presenter, Render.OnR
         mCameraEngine = CameraEngine.getInstance();
         mCameraEngine.setPreview(preview);
         mCameraEngine.setRenderFrameCallback(this);
+        RecorderEngine.setAudioProcessor(this);
     }
 
     @Override
@@ -81,4 +84,9 @@ public class RecorderPresenter implements RecorderContract.Presenter, Render.OnR
     }
 
 
+    @Override
+    public AudioFrame onReceiveAudioFrame(AudioFrame frame) {
+        //对声音进行编码前预处理
+        return null;
+    }
 }

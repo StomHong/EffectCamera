@@ -5,37 +5,60 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.gpufast.logger.ELog;
-import com.gpufast.recorder.PresentationTime;
 import com.gpufast.recorder.audio.encoder.AudioEncoder;
-import com.gpufast.recorder.video.VideoFrame;
 
 import java.lang.ref.WeakReference;
 
-public class AudioClient {
+public class AudioClient implements AudioCollector.OnAudioFrameCallback {
 
+    /**
+     * 音频编码线程
+     */
     private EncoderThread mEncoderThread;
-    private PresentationTime pTime;
+
+    private AudioCollector mAudioCollector;
+
+    private AudioProcessor mAudioPreprocessor;
 
     public AudioClient(AudioEncoder encoder,
                        AudioEncoder.Settings settings,
                        AudioEncoder.AudioEncoderCallback callback) {
         mEncoderThread = new EncoderThread(encoder, settings, callback);
+        mAudioCollector = new AudioCollector();
+        mAudioCollector.init(this);
     }
 
 
     public void start() {
+        //启动音频编码线程
         mEncoderThread.start();
         mEncoderThread.waitUntilReady();
-        pTime.start();
-    }
-
-
-    public void sendAudioBuffer() {
+        //启动音频采集器
+        mAudioCollector.start();
 
     }
+
 
     public void stop() {
         mEncoderThread.getHandler().sendToStop();
+    }
+
+    @Override
+    public void onReceiveAudioFrame(AudioFrame frame) {
+        AudioFrame newFrame = null;
+        if (mAudioPreprocessor != null) {
+            newFrame = mAudioPreprocessor.onReceiveAudioFrame(frame);
+        }
+        if (newFrame != null) {
+            frame = newFrame;
+        }
+        //编码音频
+        mEncoderThread.getHandler().sendAudioFrame(frame);
+    }
+
+    public void release() {
+
+
     }
 
     private static class EncoderThread extends Thread {
@@ -93,9 +116,9 @@ public class AudioClient {
             }
         }
 
-        void sendAudioFrame(byte[] bufferBytes, int len, long presentationTimeUs) {
+        void sendAudioFrame(AudioFrame frame) {
             if (mAudioEncoder != null && mReady) {
-                mAudioEncoder.encodePcm(bufferBytes, len, presentationTimeUs);
+                mAudioEncoder.encodePcm(frame);
             }
         }
 
@@ -121,7 +144,7 @@ public class AudioClient {
         }
 
 
-        public void sendVideoFrame(VideoFrame frame) {
+        void sendAudioFrame(AudioFrame frame) {
             sendMessage(obtainMessage(ON_FRAME_AVAILABLE, frame));
         }
 
@@ -139,6 +162,7 @@ public class AudioClient {
             }
             switch (msg.what) {
                 case ON_FRAME_AVAILABLE:
+                    encoderThread.sendAudioFrame((AudioFrame) msg.obj);
                     break;
                 case ON_STOP:
                     encoderThread.shutdown();
@@ -146,6 +170,4 @@ public class AudioClient {
             }
         }
     }
-
-
 }

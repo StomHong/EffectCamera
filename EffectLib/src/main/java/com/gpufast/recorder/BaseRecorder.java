@@ -3,6 +3,7 @@ package com.gpufast.recorder;
 import android.opengl.EGLContext;
 
 import com.gpufast.logger.ELog;
+import com.gpufast.recorder.audio.AudioProcessor;
 import com.gpufast.recorder.muxer.MediaMuxer;
 import com.gpufast.recorder.video.EncoderType;
 import com.gpufast.recorder.video.VideoClient;
@@ -29,6 +30,8 @@ public abstract class BaseRecorder implements IRecorder {
     //封装器
     private MediaMuxer mMuxer;
 
+    protected AudioProcessor mAudioFrameCallback;
+
 
     private void initRecorder() {
         if (recorderParams.isHwEncoder()) {
@@ -47,7 +50,6 @@ public abstract class BaseRecorder implements IRecorder {
             videoEncoderFactory.setShareContext(shareContext);
         }
 
-
         VideoCodecInfo videoCodecInfo = null;
         //配置视频编码器信息
         VideoCodecInfo[] supportedCodecs = videoEncoderFactory.getSupportedCodecs();
@@ -58,8 +60,11 @@ public abstract class BaseRecorder implements IRecorder {
         } else {
             ELog.e(TAG, "don't find a available codec :");
         }
+    }
 
-
+    @Override
+    public void setAudioProcessor(AudioProcessor callback) {
+        mAudioFrameCallback = callback;
     }
 
 }

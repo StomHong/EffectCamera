@@ -3,7 +3,7 @@ package com.gpufast.recorder;
 import android.opengl.EGLContext;
 
 import com.gpufast.logger.ELog;
-import com.gpufast.recorder.audio.encoder.AudioEncoder;
+import com.gpufast.recorder.audio.AudioClient;
 import com.gpufast.recorder.audio.encoder.HwAudioEncoder;
 import com.gpufast.recorder.muxer.Mp4Muxer;
 import com.gpufast.recorder.video.EncoderType;
@@ -23,11 +23,16 @@ public class EffectRecorder extends BaseRecorder {
     private EGLContext shareContext;
 
     private VideoEncoderFactory videoEncoderFactory;
+
     private VideoCodecInfo videoCodecInfo;
+
     private VideoEncoder.Settings videoSettings;
+
     private VideoClient mVideoClient;
+
     private Mp4Muxer mMp4Muxer;
-    private AudioEncoder audioEncoder;
+
+    private AudioClient mAudioClient;
 
     RecorderListener mRecorderListener;
 
@@ -69,6 +74,12 @@ public class EffectRecorder extends BaseRecorder {
             }
         }
         mMp4Muxer = new Mp4Muxer(params.getSavePath());
+
+
+        if (params.isEnableAudio()) {
+            mAudioClient = new AudioClient();
+        }
+
         try {
             audioEncoder = new HwAudioEncoder(mMp4Muxer);
             audioEncoder.initEncoder();
@@ -95,6 +106,7 @@ public class EffectRecorder extends BaseRecorder {
         if (recorderStarted) {
             return;
         }
+
         recorderStarted = true;
 
         if (videoEncoderFactory != null) {
@@ -108,11 +120,10 @@ public class EffectRecorder extends BaseRecorder {
             mVideoClient.start();
         }
 
-
-
-        if (audioEncoder != null) {
-            audioEncoder.startRecording();
+        if (mAudioClient != null) {
+            mAudioClient.start();
         }
+
 
         if (mRecorderListener != null) {
             mRecorderListener.onRecorderStart();
@@ -140,28 +151,36 @@ public class EffectRecorder extends BaseRecorder {
         if (mRecorderListener != null) {
             mRecorderListener.onRecorderStop();
         }
-        if (audioEncoder != null){
-            audioEncoder.stopRecording();
+        if (mAudioClient != null) {
+            mAudioClient.stop();
         }
-        if (mMp4Muxer != null){
+        if (mMp4Muxer != null) {
             mMp4Muxer.stop();
         }
     }
 
     @Override
     public void setRecorderListener(RecorderListener listener) {
-       this.mRecorderListener = listener;
+        this.mRecorderListener = listener;
     }
 
 
     @Override
     public void release() {
-        if (audioEncoder != null) {
-            audioEncoder.release();
+        if (mVideoClient != null) {
+            mVideoClient.release();
+            mVideoClient = null;
+        }
+
+        if (mAudioClient != null) {
+            mAudioClient.release();
+            mVideoClient = null;
         }
         if (mMp4Muxer != null) {
             mMp4Muxer.release();
+            mMp4Muxer = null;
         }
     }
+
 
 }
