@@ -4,9 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.gpufast.effectcamera.recorder.ui.RecorderActivity;
 import com.gpufast.utils.ELog;
@@ -17,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mStartCameraBtn;
     private RxPermissions rxPermissions;
     private int grantNum = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,21 +32,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rxPermissions = new RxPermissions(this);
     }
 
-
     private void initView() {
         mStartCameraBtn = findViewById(R.id.start_camera_btn);
     }
 
-
     private void initEvent() {
         mStartCameraBtn.setOnClickListener(this);
-
     }
 
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.start_camera_btn:
                 startCameraActivity();
                 break;
@@ -74,6 +73,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-//
     }
 }

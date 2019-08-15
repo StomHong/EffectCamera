@@ -1,16 +1,16 @@
 package com.gpufast.camera;
 
 import android.hardware.Camera;
-import android.util.Log;
-import android.view.Surface;
-import com.gpufast.utils.ELog;
+
+import com.gpufast.logger.ELog;
+
 import java.io.IOException;
 import java.util.List;
 
 /**
  * @author Sivin 2018/10/26
  * Description:使用旧版本camera类API实现实现,
- * TODO：该类没有实现数据回调的接口，目前有待测试，是否数据回调是否与帧数据同时返回
+ * TODO：该类没有实现数据回调的接口，目前有待测试，能否实现数据回调是否与帧数据同时返回
  */
 class Camera19 implements ICamera {
     private Camera mCamera = null;

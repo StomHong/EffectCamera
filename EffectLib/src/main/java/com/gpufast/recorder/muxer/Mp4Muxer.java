@@ -1,10 +1,12 @@
 package com.gpufast.recorder.muxer;
 
+import android.media.MediaFormat;
 import android.media.MediaMuxer;
-import android.util.Log;
 
-import com.gpufast.recorder.audio.AudioEncoder;
+import com.gpufast.logger.ELog;
 import com.gpufast.recorder.audio.EncodedAudio;
+import com.gpufast.recorder.audio.encoder.AudioEncoder;
+import com.gpufast.recorder.file.FileWriter;
 import com.gpufast.recorder.video.EncodedImage;
 import com.gpufast.recorder.video.VideoEncoder;
 
@@ -14,61 +16,65 @@ import java.io.IOException;
  * 视频合成接口
  */
 public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder.AudioEncoderCallback {
-
     private static final String TAG = Mp4Muxer.class.getSimpleName();
-
     public MediaMuxer mMediaMuxer;
     private int audioTrackIndex = -1;
     private int videoTrackIndex = -1;
     boolean mediaMuxerStarted = false;
 
+    private FileWriter mH264Writer;
+
     public Mp4Muxer(String outputPath) {
         try {
             mMediaMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException e) {
-            Log.e(TAG,"Init MediaMuxer:" + e.getMessage());
+            ELog.e(TAG, "Init MediaMuxer:" + e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateVideoMediaFormat(MediaFormat format) {
+        videoTrackIndex = mMediaMuxer.addTrack(format);
+        if (videoTrackIndex < 0) {
+            ELog.e(TAG, "Add video track failed");
+        }
+    }
+
+    @Override
+    public void onUpdateAudioFormat(MediaFormat mediaFormat) {
+        audioTrackIndex = mMediaMuxer.addTrack(mediaFormat);
+        if (audioTrackIndex < 0) {
+            ELog.e(TAG, "Add audio track failed");
         }
     }
 
     @Override
     public void onEncodedFrame(EncodedImage frame) {
-        if (videoTrackIndex == -1 && frame.mediaFormat != null && frame.buffer != null && audioTrackIndex != -1) {
-            videoTrackIndex = mMediaMuxer.addTrack(frame.mediaFormat);
-            if (videoTrackIndex < 0) {
-                Log.e(TAG, "Add video track failed" );
-            }
-        }
-        if (videoTrackIndex != -1 && audioTrackIndex != -1) {
+        if (videoTrackIndex != -1) {
             start();
             mMediaMuxer.writeSampleData(videoTrackIndex, frame.buffer, frame.bufferInfo);
-            Log.i(TAG, "Write video data ，time="+frame.bufferInfo.presentationTimeUs );
+            ELog.i(TAG, "Write video data ，time=" + frame.bufferInfo.presentationTimeUs);
         }
-
     }
+
 
     @Override
     public void onEncodedAudio(EncodedAudio frame) {
-        if (audioTrackIndex == -1 && frame.mMediaFormat != null && frame.mBuffer != null) {
-            audioTrackIndex = mMediaMuxer.addTrack(frame.mMediaFormat);
-            if (audioTrackIndex < 0) {
-                Log.e(TAG, "Add audio track failed" );
-            }
-        }
-        if (mediaMuxerStarted) {
+        if (audioTrackIndex != -1) {
             mMediaMuxer.writeSampleData(audioTrackIndex, frame.mBuffer, frame.mBufferInfo);
-            Log.i(TAG, "Write audio data，time="+frame.mBufferInfo.presentationTimeUs );
+            ELog.i(TAG, "Write audio data，time=" + frame.mBufferInfo.presentationTimeUs);
         }
     }
 
     private void start() {
-        try {
-            if (mMediaMuxer != null && !mediaMuxerStarted) {
-                mMediaMuxer.start();
+        if (mediaMuxerStarted) {
+            return;
+        }
+        synchronized (Mp4Muxer.class) {
+            if (!mediaMuxerStarted) {
                 mediaMuxerStarted = true;
+                mMediaMuxer.start();
             }
-        } catch (Exception e) {
-            Log.e(TAG,"Start MediaMuxer:" + e.getMessage());
-            mediaMuxerStarted = false;
         }
     }
 
@@ -77,7 +83,7 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder
             if (mMediaMuxer != null)
                 mMediaMuxer.stop();
         } catch (Exception e) {
-            Log.e(TAG,"Stop MediaMuxer:" + e.getMessage());
+            ELog.e(TAG, "Stop MediaMuxer:" + e.getMessage());
         }
     }
 
@@ -86,7 +92,7 @@ public class Mp4Muxer implements VideoEncoder.VideoEncoderCallback, AudioEncoder
             if (mMediaMuxer != null)
                 mMediaMuxer.release();
         } catch (Exception e) {
-            Log.e(TAG,"Release MediaMuxer:" + e.getMessage());
+            ELog.e(TAG, "Release MediaMuxer:" + e.getMessage());
         }
     }
 

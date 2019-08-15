@@ -48,7 +48,7 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
         params.setVideoWidth(720);
         params.setVideoHeight(1280);
         params.setHwEncoder(true);
-        params.setVideoPath(path+"/a_test/test.mp4");
+        params.setSavePath(path + "/a_test/test.mp4");
         mPresenter.setRecorderParameter(params);
 
     }
@@ -84,7 +84,7 @@ public class RecorderFragment extends BaseFragment implements RecorderContract.V
             case R.id.id_start_recorder_btn:
                 if (mPresenter.isRecording()) {
                     mPresenter.stopRecorder();
-                }else {
+                } else {
                     mPresenter.startRecorder();
                 }
                 break;

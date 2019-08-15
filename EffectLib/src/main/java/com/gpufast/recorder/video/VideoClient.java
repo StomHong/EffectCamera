@@ -4,43 +4,53 @@ import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
-import com.gpufast.utils.ELog;
+import com.gpufast.logger.ELog;
+import com.gpufast.recorder.PresentationTime;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * 转发前端传递的图像数据，交给编码前局处理部分
+ * 然后送给编码器进行编码
+ */
 public class VideoClient {
 
     private EncoderThread mEncoderThread;
+    private PresentationTime pTime;
 
     public VideoClient(VideoEncoder encoder,
-                       VideoEncoder.VideoSettings settings,
+                       VideoEncoder.Settings settings,
                        VideoEncoder.VideoEncoderCallback callback) {
         mEncoderThread = new EncoderThread(encoder, settings, callback);
+        pTime = new PresentationTime(settings.maxFrameRate);
     }
 
 
     public void start() {
         mEncoderThread.start();
         mEncoderThread.waitUntilReady();
+        pTime.start();
     }
 
 
-    public void sendVideoFrame(int textureId, int srcWidth, int srcHeight, long timeStamp) {
+    public void sendVideoFrame(int textureId, int srcWidth, int srcHeight) {
         if (mEncoderThread != null && mEncoderThread.isReady()) {
-
+            pTime.record();
             VideoFrame videoFrame = new VideoFrame(
                     new TextureBufferImpl(textureId, srcWidth,
                             srcHeight, VideoFrame.TextureBuffer.TextureType.RGB),
-                    0,timeStamp);
-
+                    0, pTime.presentationTimeNs);
             mEncoderThread.getHandler().sendVideoFrame(videoFrame);
         }
     }
 
     public void stop() {
         mEncoderThread.getHandler().sendToStop();
+    }
+
+    public void release() {
+
     }
 
     private static class EncoderThread extends Thread {
@@ -51,10 +61,10 @@ public class VideoClient {
 
 
         private VideoEncoder mVideoEncoder;
-        private VideoEncoder.VideoSettings mSettings;
+        private VideoEncoder.Settings mSettings;
         VideoEncoder.VideoEncoderCallback mCallback;
 
-        EncoderThread(VideoEncoder encoder, VideoEncoder.VideoSettings settings,
+        EncoderThread(VideoEncoder encoder, VideoEncoder.Settings settings,
                       VideoEncoder.VideoEncoderCallback callback) {
             mVideoEncoder = encoder;
             mSettings = settings;
@@ -107,7 +117,7 @@ public class VideoClient {
          * 必须在当前线程调用
          */
         private void shutdown() {
-            Log.d(TAG, "shutdown");
+            ELog.d(TAG, "shutdown");
             Looper.myLooper().quit();
         }
     }
@@ -143,7 +153,7 @@ public class VideoClient {
             }
             switch (msg.what) {
                 case ON_FRAME_AVAILABLE:
-                    encoderThread.sendVideoFrame((VideoFrame)msg.obj);
+                    encoderThread.sendVideoFrame((VideoFrame) msg.obj);
                     break;
                 case ON_STOP:
                     encoderThread.shutdown();
