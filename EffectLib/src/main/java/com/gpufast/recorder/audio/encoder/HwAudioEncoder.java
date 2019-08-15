@@ -10,6 +10,7 @@ import com.gpufast.recorder.audio.AudioFrame;
 import com.gpufast.recorder.audio.EncodedAudio;
 import com.gpufast.recorder.hardware.MediaCodecWrapper;
 import com.gpufast.recorder.hardware.MediaCodecWrapperFactory;
+import com.gpufast.utils.ThreadUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -50,19 +51,26 @@ public class HwAudioEncoder implements AudioEncoder {
      */
     private static final int CHANNEL = 2;
 
+    private ThreadUtils.ThreadChecker checker;
+
     public HwAudioEncoder(MediaCodecWrapperFactory mediaCodecFactory,
                           AudioCodecType codecType, String codecName) {
         this.mediaCodecFactory = mediaCodecFactory;
         this.codecType = codecType;
         this.codecName = codecName;
+        checker = new ThreadUtils.ThreadChecker();
+        checker.detachThread();
     }
 
 
     @Override
     public AudioCodecStatus initEncoder(AudioEncoder.Settings settings, AudioEncoderCallback callback) {
+        checker.checkIsOnValidThread();
+
         if (settings == null) {
             return AudioCodecStatus.ERR_PARAMETER;
         }
+
         encoderCallback = callback;
         try {
             codec = mediaCodecFactory.createByCodecName(codecName);
@@ -104,6 +112,9 @@ public class HwAudioEncoder implements AudioEncoder {
 
     @Override
     public void encodePcm(AudioFrame frame) {
+
+        checker.checkIsOnValidThread();
+
         int inputBufferIndex = codec.dequeueInputBuffer(-1);
         if (inputBufferIndex >= 0) {
             ByteBuffer inputBuffer = codec.getInputBuffer(inputBufferIndex);
@@ -140,11 +151,14 @@ public class HwAudioEncoder implements AudioEncoder {
 
     @Override
     public void release() {
+        checker.checkIsOnValidThread();
+
         if (codec != null) {
             codec.stop();
         }
         if (codec != null) {
             codec.release();
         }
+        checker.detachThread();
     }
 }

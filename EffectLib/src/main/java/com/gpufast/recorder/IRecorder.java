@@ -15,6 +15,7 @@ public interface IRecorder {
 
     /**
      * 设置EGL共享上下文
+     *
      * @param shareContext
      */
     void setShareContext(EGLContext shareContext);
@@ -22,8 +23,9 @@ public interface IRecorder {
 
     /**
      * 传递图像数据信息
+     *
      * @param textureId textureId
-     * @param srcWidth srcWidth
+     * @param srcWidth  srcWidth
      * @param srcHeight srcHeight
      */
     void sendVideoFrame(int textureId, int srcWidth, int srcHeight);
@@ -42,6 +44,7 @@ public interface IRecorder {
 
     /**
      * 是否正在录制
+     *
      * @return true:正在录制
      */
     boolean isRecording();
@@ -53,10 +56,9 @@ public interface IRecorder {
 
     void setRecorderListener(RecorderListener listener);
 
+    void setAudioProcessor(AudioProcessor processor);
 
     void release();
-
-    void setAudioProcessor(AudioProcessor callback);
 
     interface RecorderListener {
 

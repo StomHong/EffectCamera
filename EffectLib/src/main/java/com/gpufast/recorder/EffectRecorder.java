@@ -4,7 +4,9 @@ import android.opengl.EGLContext;
 
 import com.gpufast.logger.ELog;
 import com.gpufast.recorder.audio.AudioClient;
-import com.gpufast.recorder.audio.encoder.HwAudioEncoder;
+import com.gpufast.recorder.audio.encoder.AudioCodecInfo;
+import com.gpufast.recorder.audio.encoder.AudioEncoder;
+import com.gpufast.recorder.audio.encoder.AudioEncoderFactory;
 import com.gpufast.recorder.muxer.Mp4Muxer;
 import com.gpufast.recorder.video.EncoderType;
 import com.gpufast.recorder.video.VideoClient;
@@ -12,11 +14,18 @@ import com.gpufast.recorder.video.VideoEncoder;
 import com.gpufast.recorder.video.VideoEncoderFactory;
 import com.gpufast.recorder.video.encoder.VideoCodecInfo;
 
-import java.io.IOException;
-
 public class EffectRecorder extends BaseRecorder {
 
     private static final String TAG = EffectRecorder.class.getSimpleName();
+
+    //视频码率(Kilobits per second）
+    private final static int VIDEO_BITRATE = 4000;
+    //视频帧率
+    private final static int VIDEO_FRAME_RATE = 30;
+    //音频采样率
+    private final static int AUDIO_SAMPLE_RATE = 4000;
+    //音频码率
+    private final static int AUDIO_BITRATE = 30;
 
     private volatile boolean recorderStarted = false;
 
@@ -30,16 +39,19 @@ public class EffectRecorder extends BaseRecorder {
 
     private VideoClient mVideoClient;
 
-    private Mp4Muxer mMp4Muxer;
+
+    private AudioEncoder.Settings audioSettings;
+
+    private AudioEncoderFactory audioEncoderFactory;
+
+    private AudioCodecInfo audioCodecInfo;
 
     private AudioClient mAudioClient;
 
-    RecorderListener mRecorderListener;
+    private Mp4Muxer mMp4Muxer;
 
-    //开始码率
-    public final int startBitrate = 4000; // Kilobits per second.
-    //帧率
-    public final int maxFrameRate = 30;
+    private RecorderListener mRecorderListener;
+
 
     EffectRecorder() {
     }
@@ -52,7 +64,7 @@ public class EffectRecorder extends BaseRecorder {
         if (params.isEnableVideo()) {
             //get video encoder params
             videoSettings = new VideoEncoder.Settings(params.getVideoWidth(),
-                    params.getVideoHeight(), startBitrate, maxFrameRate);
+                    params.getVideoHeight(), VIDEO_BITRATE, VIDEO_FRAME_RATE);
 
             if (params.isHwEncoder()) {
                 videoEncoderFactory = EncoderFactory.getVideoEncoderFactory(EncoderType.HW_VIDEO_ENCODER);
@@ -73,19 +85,20 @@ public class EffectRecorder extends BaseRecorder {
                 }
             }
         }
-        mMp4Muxer = new Mp4Muxer(params.getSavePath());
-
 
         if (params.isEnableAudio()) {
-            mAudioClient = new AudioClient();
+            audioSettings = new AudioEncoder.Settings(AUDIO_SAMPLE_RATE, AUDIO_BITRATE);
+            if (params.isHwEncoder()) {
+                audioEncoderFactory = EncoderFactory.getAudioEncoder(EncoderType.HW_AUDIO_ENCODER);
+            } else {
+                audioEncoderFactory = EncoderFactory.getAudioEncoder(EncoderType.SW_AUDIO_ENCODER);
+            }
+            if (audioEncoderFactory != null) {
+                audioCodecInfo = audioEncoderFactory.getSupportCodecInfo();
+            }
         }
 
-        try {
-            audioEncoder = new HwAudioEncoder(mMp4Muxer);
-            audioEncoder.initEncoder();
-        } catch (IOException e) {
-            ELog.e(TAG, "Init HwAudioEncoder:" + e.getMessage());
-        }
+        mMp4Muxer = new Mp4Muxer(params.getSavePath());
     }
 
     @Override
@@ -106,34 +119,31 @@ public class EffectRecorder extends BaseRecorder {
         if (recorderStarted) {
             return;
         }
-
         recorderStarted = true;
 
         if (videoEncoderFactory != null) {
             ELog.i(TAG, "create video encoder");
             VideoEncoder videoEncoder = videoEncoderFactory.createEncoder(videoCodecInfo);
-            if (videoEncoder == null) {
-                ELog.e(TAG, "can't create video encoder.");
+            if (videoEncoder != null) {
+                mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
+                mVideoClient.start();
                 return;
+            } else {
+                ELog.e(TAG, "can't create video encoder.");
             }
-            mVideoClient = new VideoClient(videoEncoder, videoSettings, mMp4Muxer);
-            mVideoClient.start();
         }
+
 
         if (mAudioClient != null) {
             mAudioClient.start();
         }
-
 
         if (mRecorderListener != null) {
             mRecorderListener.onRecorderStart();
         }
     }
 
-    @Override
-    public void jointVideo() {
 
-    }
 
     @Override
     public void sendVideoFrame(int textureId, int srcWidth, int srcHeight) {
@@ -141,6 +151,8 @@ public class EffectRecorder extends BaseRecorder {
             mVideoClient.sendVideoFrame(textureId, srcWidth, srcHeight);
         }
     }
+
+
 
 
     @Override
@@ -158,6 +170,13 @@ public class EffectRecorder extends BaseRecorder {
             mMp4Muxer.stop();
         }
     }
+
+
+    @Override
+    public void jointVideo() {
+
+    }
+
 
     @Override
     public void setRecorderListener(RecorderListener listener) {

@@ -6,17 +6,17 @@ import android.opengl.EGLContext;
 import com.gpufast.recorder.audio.AudioProcessor;
 
 public class RecorderEngine {
-    private static IRecorder recorder;
+    private static IRecorder worker;
 
     private static IRecorder create() {
-        if (recorder == null) {
+        if (worker == null) {
             synchronized (RecorderEngine.class) {
-                if (recorder == null) {
-                    recorder = new EffectRecorder();
+                if (worker == null) {
+                    worker = new Worker();
                 }
             }
         }
-        return recorder;
+        return worker;
     }
 
     /**
@@ -72,15 +72,12 @@ public class RecorderEngine {
         create().stopRecorder();
     }
 
-
-
-
     public void setRecorderListener(IRecorder.RecorderListener listener) {
         create().setRecorderListener(listener);
     }
 
     public static void release() {
         create().release();
-        recorder = null;
+        worker = null;
     }
 }

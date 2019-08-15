@@ -11,14 +11,17 @@ import java.lang.ref.WeakReference;
 
 public class AudioClient implements AudioCollector.OnAudioFrameCallback {
 
-    /**
-     * 音频编码线程
-     */
+    //音频编码线程
     private EncoderThread mEncoderThread;
 
+    private EncoderHandler mEncoderHandler;
+
+    //音频采集器
     private AudioCollector mAudioCollector;
 
+    //音频预处理器
     private AudioProcessor mAudioPreprocessor;
+
 
     public AudioClient(AudioEncoder encoder,
                        AudioEncoder.Settings settings,
@@ -35,12 +38,32 @@ public class AudioClient implements AudioCollector.OnAudioFrameCallback {
         mEncoderThread.waitUntilReady();
         //启动音频采集器
         mAudioCollector.start();
-
+        mEncoderHandler = mEncoderThread.getHandler();
     }
 
-
+    /**
+     * 停止编码线程
+     */
     public void stop() {
-        mEncoderThread.getHandler().sendToStop();
+        if (mEncoderHandler != null) {
+            mEncoderHandler.sendToStop();
+        }
+    }
+
+    /**
+     * 释放资源
+     */
+    public void release() {
+        stop();
+    }
+
+    /**
+     * 设置音频预处理器
+     *
+     * @param preprocessor 处理器对象
+     */
+    public void setAudioPreprocessor(AudioProcessor preprocessor) {
+        mAudioPreprocessor = preprocessor;
     }
 
     @Override
@@ -56,10 +79,6 @@ public class AudioClient implements AudioCollector.OnAudioFrameCallback {
         mEncoderThread.getHandler().sendAudioFrame(frame);
     }
 
-    public void release() {
-
-
-    }
 
     private static class EncoderThread extends Thread {
         private static final String TAG = EncoderThread.class.getSimpleName();
@@ -75,6 +94,7 @@ public class AudioClient implements AudioCollector.OnAudioFrameCallback {
 
         EncoderThread(AudioEncoder encoder, AudioEncoder.Settings settings,
                       AudioEncoder.AudioEncoderCallback callback) {
+            super("audio_Encoder_Thread");
             mAudioEncoder = encoder;
             mSettings = settings;
             mCallback = callback;
@@ -95,9 +115,10 @@ public class AudioClient implements AudioCollector.OnAudioFrameCallback {
             initEncoder();
             synchronized (mStartLock) {
                 mReady = true;
-                mStartLock.notify();  //通知调用线程，渲染线程准备工作完成
+                mStartLock.notify();
             }
             Looper.loop();
+            release();
         }
 
         void waitUntilReady() {
@@ -105,7 +126,7 @@ public class AudioClient implements AudioCollector.OnAudioFrameCallback {
                 while (!mReady) {
                     try {
                         mStartLock.wait();
-                    } catch (InterruptedException ie) { /* not expected */ }
+                    } catch (InterruptedException e) { /* not expected */ }
                 }
             }
         }
@@ -129,11 +150,20 @@ public class AudioClient implements AudioCollector.OnAudioFrameCallback {
             ELog.d(TAG, "shutdown");
             Looper.myLooper().quit();
         }
+
+        private void release() {
+            if (mAudioEncoder != null) {
+                mAudioEncoder.release();
+                mAudioEncoder = null;
+            }
+        }
     }
 
 
     private static class EncoderHandler extends Handler {
+
         private static final String TAG = EncoderHandler.class.getSimpleName();
+
         private static final int ON_FRAME_AVAILABLE = 0x001;
         private static final int ON_STOP = 0x002;
 

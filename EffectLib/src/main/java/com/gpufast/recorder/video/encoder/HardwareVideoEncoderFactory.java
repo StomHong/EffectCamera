@@ -66,8 +66,10 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         }
 
         String codecName = info.getName();
+
         String mime = type.mimeType();
         ELog.d(this, "codecName :" + codecName + " mime:" + mime);
+
         Integer surfaceColorFormat = MediaCodecUtils.selectColorFormat(
                 MediaCodecUtils.TEXTURE_COLOR_FORMATS, info.getCapabilitiesForType(mime));
 
