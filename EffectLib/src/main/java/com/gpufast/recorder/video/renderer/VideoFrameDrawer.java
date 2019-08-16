@@ -45,8 +45,6 @@ public class VideoFrameDrawer {
             renderMatrix.preScale(1f, -1f); // I420-frames are upside down
         }
         renderMatrix.preRotate(frame.getRotation());
-        //镜像翻转
-        renderMatrix.preScale(-1,1);
 
         //前面设置过，这里恢复回来
         renderMatrix.preTranslate(-0.5f, -0.5f);
